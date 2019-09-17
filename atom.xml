@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Chai&#39;s Blog</title>
+  
+  
+  <link href="/chaichai.site/atom.xml" rel="self"/>
+  
+  <link href="http://chaichai.site/"/>
+  <updated>2019-09-17T16:16:14.156Z</updated>
+  <id>http://chaichai.site/</id>
+  
+  <author>
+    <name>Chai Wei-Li</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://chaichai.site/2019/09/17/hello-world/"/>
+    <id>http://chaichai.site/2019/09/17/hello-world/</id>
+    <published>2019-09-17T04:44:11.926Z</published>
+    <updated>2019-09-17T16:16:14.156Z</updated>
+    
+    <content type="html"><![CDATA[<p>Welcome to <a href="http://chaichai.site/">Chai’s Blog</a>!</p><h2 id="Under-construction"><a href="#Under-construction" class="headerlink" title="Under construction"></a>Under construction</h2><h3 id="hehe"><a href="#hehe" class="headerlink" title="hehe"></a>hehe</h3><figure class="highlight zsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ welcome yo</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;Welcome to &lt;a href=&quot;http://chaichai.site/&quot;&gt;Chai’s Blog&lt;/a&gt;!&lt;/p&gt;
+&lt;h2 id=&quot;Under-construction&quot;&gt;&lt;a href=&quot;#Under-construction&quot; class=&quot;headerli
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+</feed>
