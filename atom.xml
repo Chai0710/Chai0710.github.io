@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://chaichai.site/"/>
-  <updated>2019-09-17T16:16:14.156Z</updated>
+  <updated>2019-10-06T14:37:37.270Z</updated>
   <id>http://chaichai.site/</id>
   
   <author>
@@ -17,20 +17,19 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Hello World</title>
+    <title>Welcome to Chai&#39;s blog.</title>
     <link href="http://chaichai.site/2019/09/17/hello-world/"/>
     <id>http://chaichai.site/2019/09/17/hello-world/</id>
     <published>2019-09-17T04:44:11.926Z</published>
-    <updated>2019-09-17T16:16:14.156Z</updated>
+    <updated>2019-10-06T14:37:37.270Z</updated>
     
-    <content type="html"><![CDATA[<p>Welcome to <a href="http://chaichai.site/">Chai’s Blog</a>!</p><h2 id="Under-construction"><a href="#Under-construction" class="headerlink" title="Under construction"></a>Under construction</h2><h3 id="hehe"><a href="#hehe" class="headerlink" title="hehe"></a>hehe</h3><figure class="highlight zsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ welcome yo</span><br></pre></td></tr></table></figure>]]></content>
+    <content type="html"><![CDATA[<h2 id="歡迎光臨"><a href="#歡迎光臨" class="headerlink" title="歡迎光臨"></a>歡迎光臨</h2><p>除了 blog，也可以在 Medium 上找到我唷！<br><a href="https://medium.com/@wown0710" target="_blank" rel="noopener">Chai’s Medium</a></p>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;p&gt;Welcome to &lt;a href=&quot;http://chaichai.site/&quot;&gt;Chai’s Blog&lt;/a&gt;!&lt;/p&gt;
-&lt;h2 id=&quot;Under-construction&quot;&gt;&lt;a href=&quot;#Under-construction&quot; class=&quot;headerli
+        &lt;h2 id=&quot;歡迎光臨&quot;&gt;&lt;a href=&quot;#歡迎光臨&quot; class=&quot;headerlink&quot; title=&quot;歡迎光臨&quot;&gt;&lt;/a&gt;歡迎光臨&lt;/h2&gt;&lt;p&gt;除了 blog，也可以在 Medium 上找到我唷！&lt;br&gt;&lt;a href=&quot;https://medium.com/@wow
       
     
     </summary>
