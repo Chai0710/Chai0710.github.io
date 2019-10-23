@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Chai&#39;s Blog">
-    <title>所有文章 - Chai&#39;s Blog</title>
+    <title>Ruby Symbol - Chai&#39;s Blog</title>
     <meta name="author" content="Chai Wei-Li">
     
         <meta name="keywords" content="Ruby on Rails,Programmer,">
@@ -17,15 +17,19 @@
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{}</script>
-    <meta name="keywords" content="Ruby on Rails,Programmer">
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","mailto"],"image":"chai.jpg"},"articleBody":"在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？\n\n何謂 SymbolRuby 的官方 API 中這麼寫道：\n\nSymbol 物件表示 Ruby 直譯器中的「名稱」及某些「字串」。Symbol 可以用：name 和：“string” 語法以及各種 to_sym 方法生成。無論內容或含義為何，都會在程序執行的期間為該名稱或字串創建相同的 Symbol 物件。因此，假設 Fred 在一個 context 中是一個常數，在一個 context 中是方法，也是另一個 context 的類別， Symbol：Fred 全都是相同的物件。\n\n123456789101112131415module One  class Fred  end  $f1 = :Fredendmodule Two  Fred = 1  $f2 = :Fredenddef Fred()end$f3 = :Fred$f1.object_id        # 2514190$f2.object_id        # 2514190$f3.object_id        # 2514190\n\n\nSymbol 就是一個 Symbol class 的實體。\nSymbol 不是變數，是「帶有名字的物件」，本質上就是「值」，不需要也不能指向任何東西。（變數則是指向某物件的名字，無法單獨存在。）\nSymbol 即使被重複使用，也都是同一個物件，object_id 不會變，不會消耗多餘的記憶體。\n\nSymbol 的取得方式1234:symbol:'symbol'%s!symbol!    # %記法# 可使用 Symbol.all_symbols 取得所有已生成的 Symbol 列表。\n\n\n當宣告新的變數 / 方法 / 類別時，Ruby 會偷偷新增新的 Symbol\n\n12im_chai = \"Chai\"Symbol.all_symbols.map(&amp;:to_s).include?(\"im_chai\")   # true\n\nSymbol 的命名規則\nSymbol 的表現方法為「：」後跟一個標識符，一個方法名稱（包括如「！」「？」「=」等等的後綴詞），一個變數名（包括如「$」的前綴詞等），英文或非英文皆可。唯一例外的是， Symbol 不接受「\\」字元。\n\n1234:LOCK_SH:$&lt;:こんにちは:”Good Day”\n\n\nSymbol 與 String 的比較\n相同 Symbol 指向的都是同一個記憶體，相同的 String 在每次產生時，都是在不同記憶體位置的不同物件。\n\n123456789101112133.times do  puts \"hello\".object_idend# 70199659402580# 70199659366640# 701996593665605.times do  puts :hello.object_idend# 899228# 899228# 899228\n\n\nSymbol 效能較好 / String 較差\n做比較的時候，Symbol 是比對 object id 是否相同，而 String 則是一個字母一個字母逐一比對。所以在效能上來說，String 在做比較的時間複雜度會隨著字母的數量而增加，但 Symbol 的比較因為只比較是不是同一顆物件，所以它的複雜度是固定的。\n\n\n\n1234p \"abc\" == \"abc\"           # truep \"abc\".equal?(\"abc\")      # falsep :abc == :abc             # truep :abc.equal?(:abc)        # true\n\n\nSymbol 可使用的方法較少 / String 較多（Symbol class 的某些方法與 String class 的方法具有相同的名稱和功能）\n\n123456:hello.length                  # 5:hello.upcase                  # :HELLO:hello[0]                      # \"h\":\"foobar--\".capitalize         # \"Foobar--\":foo.encoding                  # #&lt;Encoding:US-ASCII&gt;:哈哈.encoding                  # #&lt;Encoding:UTF-8&gt;\n\n\nSymbol 內容無法更動 / String 可以\n\n123456p :symbol           # :symbolp \"symbol\"          # \"symbol\"p :symbol[2]        # mp \"symbol\"[2]       # m:symbol[2] = \"k\"    # error\"symbol\"[2] = \"k\"\n\n\n如果把 String 給”冰凍”(freeze)起來，它便不可修改，object id 也會是同樣的。\n\n1234563.times do  puts \"hello\".freeze.object_idend# =&gt; 70314415546380# =&gt; 70314415546380# =&gt; 70314415546380\n\nSymbol 與 String 的轉換\nString 轉 Symbol：\n\n12p \"foo\".intern                   # :foop \"foo\".intern.to_s == \"foo\"     # true\n\n\nSymbol 轉 String：\n\n12p :foo.id2name                   # \"foo\"p :foo.id2name.intern == :foo    # true\n\n\nSymbol 的使用時機\n由於 Symbol 不可變更(immutable)，以及效能較好，當內容不會變動，又不需要使用 String 的那麼多方法時，即可使用 Symbol。\n\n例如：\n\nHash 中的 Key\n\n1profile = &#123; name: \"Chai\", age: 18 &#125;   # &#123;:name=&gt;\"Chai\", :age=&gt;18&#125;\n\n\nRails 的方法裡\n\n1234567891011def show  @page = Page.find(params[:id])enddef create  @page = Page.create(page_params)    if page.save      redirect_to pages_path    else      ender :new    endend\n\n\nProc\n\n1%w(A B C).map(&amp;:to_sym)      # [:A, :B, :C]\n\n\n多數時候 String 與 Symbol 可以互換使用，但也有只能使用 Symbol 或 String 的狀況，使用前務必詳閱 API 手冊。\n\n\n參考資料:https://ruby-doc.org/core-2.5.0/Symbol.htmlhttps://docs.ruby-lang.org/ja/latest/class/Symbol.htmlhttps://kaochenlong.com/2016/04/25/string-and-symbol/https://www.ibm.com/developerworks/cn/opensource/os-cn-rubysbl/index.htmlhttps://pjchender.github.io/2017/09/26/ruby-symbol%EF%BC%88%E7%AC%A6%E8%99%9F%EF%BC%89/https://ithelp.ithome.com.tw/articles/10161202\n","dateCreated":"2019-10-23T00:00:00+08:00","dateModified":"2019-10-23T22:10:41+08:00","datePublished":"2019-10-23T00:00:00+08:00","description":"","headline":"Ruby Symbol","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://chaichai.site/2019/10/23/ruby-symbol/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","mailto"],"image":"chai.jpg","logo":{"@type":"ImageObject","url":"chai.jpg"}},"url":"http://chaichai.site/2019/10/23/ruby-symbol/","keywords":"Ruby學習日誌, Ruby, Rails"}</script>
+    <meta name="description" content="在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？  何謂 SymbolRuby 的官方 API 中這麼寫道：  Symbol 物件表示 Ruby 直譯器中的「名稱」及某些「字串」。Symbol 可以用：name 和：“string” 語法以及各種 to_sym 方法生成。無論內容或含義為何，都會在程序執行的期間為該名稱或字串創建相同的 Symbol 物件。因此，假">
+<meta name="keywords" content="Ruby學習日誌,Ruby,Rails">
 <meta property="og:type" content="blog">
-<meta property="og:title" content="Chai&#39;s Blog">
-<meta property="og:url" content="http://chaichai.site/archives/index.html">
+<meta property="og:title" content="Ruby Symbol">
+<meta property="og:url" content="http://chaichai.site/2019/10/23/ruby-symbol/index.html">
 <meta property="og:site_name" content="Chai&#39;s Blog">
+<meta property="og:description" content="在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？  何謂 SymbolRuby 的官方 API 中這麼寫道：  Symbol 物件表示 Ruby 直譯器中的「名稱」及某些「字串」。Symbol 可以用：name 和：“string” 語法以及各種 to_sym 方法生成。無論內容或含義為何，都會在程序執行的期間為該名稱或字串創建相同的 Symbol 物件。因此，假">
 <meta property="og:locale" content="zh-tw">
+<meta property="og:updated_time" content="2019-10-23T14:10:41.858Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chai&#39;s Blog">
+<meta name="twitter:title" content="Ruby Symbol">
+<meta name="twitter:description" content="在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？  何謂 SymbolRuby 的官方 API 中這麼寫道：  Symbol 物件表示 Ruby 直譯器中的「名稱」及某些「字串」。Symbol 可以用：name 和：“string” 語法以及各種 to_sym 方法生成。無論內容或含義為何，都會在程序執行的期間為該名稱或字串創建相同的 Symbol 物件。因此，假">
     
     
         
@@ -44,6 +48,8 @@
     
 
     
+        
+    
 </head>
 
     <body>
@@ -51,7 +57,7 @@
             <!-- Define author's picture -->
 
 
-<header id="header" data-behavior="1">
+<header id="header" data-behavior="4">
     <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
     <div class="header-title">
         <a
@@ -84,7 +90,7 @@
         
     
 
-<nav id="sidebar" data-behavior="1">
+<nav id="sidebar" data-behavior="4">
     <div class="sidebar-container">
         
             <div class="sidebar-profile">
@@ -238,30 +244,22 @@
 </nav>
 
             
-            <div id="main" data-behavior="1"
+            <div id="main" data-behavior="4"
                  class="
                         hasCoverMetaIn
                         ">
                 
-    <section class="postShorten-group main-content-wrap">
+<article class="post">
     
     
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
-            
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
-                        <a
-                            class="link-unstyled"
-                            href="/2019/10/23/ruby-symbol/"
-                            aria-label=": Ruby Symbol"
-                        >
-                            Ruby Symbol
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            Ruby Symbol
+        </h1>
+    
+    
+        <div class="post-meta">
     <time datetime="2019-10-23T00:00:00+08:00">
 	
 		    10月 23, 2019
@@ -276,10 +274,13 @@
     
 </div>
 
-            </div>
-            
-                <div class="postShorten-content">
-                    <p>在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？</p>
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <p>在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？</p>
 <hr>
 <h2 id="何謂-Symbol"><a href="#何謂-Symbol" class="headerlink" title="何謂 Symbol"></a>何謂 Symbol</h2><p>Ruby 的官方 API 中這麼寫道：</p>
 <blockquote>
@@ -369,95 +370,121 @@
 <hr>
 <p>參考資料:<br><a href="https://ruby-doc.org/core-2.5.0/Symbol.html" target="_blank" rel="noopener">https://ruby-doc.org/core-2.5.0/Symbol.html</a><br><a href="https://docs.ruby-lang.org/ja/latest/class/Symbol.html" target="_blank" rel="noopener">https://docs.ruby-lang.org/ja/latest/class/Symbol.html</a><br><a href="https://kaochenlong.com/2016/04/25/string-and-symbol/" target="_blank" rel="noopener">https://kaochenlong.com/2016/04/25/string-and-symbol/</a><br><a href="https://www.ibm.com/developerworks/cn/opensource/os-cn-rubysbl/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/opensource/os-cn-rubysbl/index.html</a><br><a href="https://pjchender.github.io/2017/09/26/ruby-symbol%EF%BC%88%E7%AC%A6%E8%99%9F%EF%BC%89/" target="_blank" rel="noopener">https://pjchender.github.io/2017/09/26/ruby-symbol%EF%BC%88%E7%AC%A6%E8%99%9F%EF%BC%89/</a><br><a href="https://ithelp.ithome.com.tw/articles/10161202" target="_blank" rel="noopener">https://ithelp.ithome.com.tw/articles/10161202</a></p>
 
-                    
-                        
-
-
-                    
-                    
-                        <p>
-                            <a
-                                href="/2019/10/23/ruby-symbol/#post-footer"
-                                class="postShorten-excerpt_link link"
-                                aria-label=""
-                            >
-                                留言與分享
-                            </a>
-                        </p>
-                    
-                </div>
             
+
+
         </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
         
-    </article>
-    
-    
-    <article class="postShorten postShorten--thumbnailimg-bottom">
-        <div class="postShorten-wrap">
-            
-            <div class="postShorten-header">
-                <h1 class="postShorten-title">
-                    
-                        <a
-                            class="link-unstyled"
-                            href="/2019/10/01/hello-world/"
-                            aria-label=": Welcome to Chai&#39;s blog."
-                        >
-                            Welcome to Chai&#39;s blog.
-                        </a>
-                    
-                </h1>
-                <div class="postShorten-meta">
-    <time datetime="2019-10-01T00:00:00+08:00">
-	
-		    10月 01, 2019
-    	
-    </time>
-    
-        <span>分類 </span>
-        
-    <a class="category-link" href="/categories/雜談/">雜談</a>
-
-
-    
-</div>
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">標籤</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/tags/Rails/">Rails</a> <a class="tag tag--primary tag--small t-link" href="/tags/Ruby/">Ruby</a> <a class="tag tag--primary tag--small t-link" href="/tags/Ruby學習日誌/">Ruby學習日誌</a>
 
             </div>
-            
-                <div class="postShorten-content">
-                    <p>除了 blog，也可以在 Medium 上找到我唷！<br><a href="https://medium.com/@wown0710" target="_blank" rel="noopener">Chai’s Medium</a></p>
-
-                    
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a
+                        class="post-action-btn btn btn--disabled"
+                        aria-hidden="true"
+                    >
                         
-
-
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                    </a>
+            </li>
+            <li class="post-action">
+                
                     
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/10/01/hello-world/"
+                    data-tooltip="Welcome to Chai&#39;s blog."
+                    aria-label="下一篇: Welcome to Chai&#39;s blog."
+                >
                     
-                        <p>
-                            <a
-                                href="/2019/10/01/hello-world/#post-footer"
-                                class="postShorten-excerpt_link link"
-                                aria-label=""
-                            >
-                                留言與分享
-                            </a>
-                        </p>
-                    
-                </div>
+                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a
+                class="post-action-btn btn btn--default btn-open-shareoptions"
+                href="#btn-open-shareoptions"
+                aria-label="Diesen Beitrag teilen"
+            >
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
             
-        </div>
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/23/ruby-symbol/"
+                    title="分享到 Facebook"
+                    aria-label="分享到 Facebook"
+                >
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
         
-    </article>
-    
-    <div class="pagination-bar">
-    <ul class="pagination">
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/23/ruby-symbol/"
+                    title="分享到 Twitter"
+                    aria-label="分享到 Twitter"
+                >
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://plus.google.com/share?url=http://chaichai.site/2019/10/23/ruby-symbol/"
+                    title="分享到 Google+"
+                    aria-label="分享到 Google+"
+                >
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
         
         
-        <li class="pagination-number">第 1 頁 共 1 頁</li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
     </ul>
 </div>
 
-</section>
+
+        
+        
+            
+        
+    </div>
+</article>
 
 
 
@@ -468,6 +495,151 @@
 </footer>
 
             </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a
+                        class="post-action-btn btn btn--disabled"
+                        aria-hidden="true"
+                    >
+                        
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                    </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/10/01/hello-world/"
+                    data-tooltip="Welcome to Chai&#39;s blog."
+                    aria-label="下一篇: Welcome to Chai&#39;s blog."
+                >
+                    
+                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a
+                class="post-action-btn btn btn--default btn-open-shareoptions"
+                href="#btn-open-shareoptions"
+                aria-label="Diesen Beitrag teilen"
+            >
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/23/ruby-symbol/"
+                    title="分享到 Facebook"
+                    aria-label="分享到 Facebook"
+                >
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/23/ruby-symbol/"
+                    title="分享到 Twitter"
+                    aria-label="分享到 Twitter"
+                >
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://plus.google.com/share?url=http://chaichai.site/2019/10/23/ruby-symbol/"
+                    title="分享到 Google+"
+                    aria-label="分享到 Google+"
+                >
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                
+    <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+        <i id="btn-close-shareoptions" class="fa fa-times"></i>
+        <ul class="share-options">
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/23/ruby-symbol/"
+                        aria-label="分享到 Facebook"
+                    >
+                        <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
+                    </a>
+                </li>
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/23/ruby-symbol/"
+                        aria-label="分享到 Twitter"
+                    >
+                        <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
+                    </a>
+                </li>
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://plus.google.com/share?url=http://chaichai.site/2019/10/23/ruby-symbol/"
+                        aria-label="分享到 Google+"
+                    >
+                        <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
+                    </a>
+                </li>
+            
+        </ul>
+    </div>
+
+
             
         </div>
         
@@ -593,6 +765,8 @@
 <script src="/assets/js/script-svtwgfryapukh90stjxmqmwdnkuvnvbtxrp4mjtwg8hlzz4imddb8f0ll3mm.min.js"></script>
 <!--SCRIPTS END-->
 
+
+    
 
 
 
