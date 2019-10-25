@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Chai&#39;s Blog">
-    <title>Duck Typing - Chai&#39;s Blog</title>
+    <title>Ruby Self - Chai&#39;s Blog</title>
     <meta name="author" content="Chai Wei-Li">
     
         <meta name="keywords" content="Ruby on Rails,Programmer,">
@@ -17,19 +17,19 @@
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai.jpg"},"articleBody":"「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」\n\n\n\n簡單來說，假設有一隻鳥，他會游泳、會叫，而我們定義的鴨子需要會游泳、會叫，就可以說那隻鳥是鴨子，即使它可能是一隻企鵝。\n我們並不在乎他是否繼承自鴨子的血緣，到底是不是鴨子，只在乎他的「行為」。\n比如在 Ruby 等程式語言中，有中括號 [ ] 取值的方法，除了陣列以外，字串、Hash 等物件都可以使用，甚至是在自訂的 class 中寫入中括號的方法，不管它的型別是什麼，只要具備中括號的方法，就可以使用。\n\n\n以下的範例體現了鴨子測試，只要有 quack, feathers 方法，對 in_the_forest 函式而言，該物件就是一個鴨子。\n123456789101112131415161718192021222324252627282930313233343536373839404142class Duck    def quack        puts \"這鴨子正在嘎嘎叫\"    end    def feathers        puts \"這鴨子擁有白色和灰色的羽毛\"    endendclass Person    def quack        puts \"這人正在模仿鴨子\"    end    def feathers        puts \"這人在地上拿起1根羽毛然後给其他人看\"    endenddef in_the_forest(duck)    duck.quack    duck.feathersenddef game    duck = Duck.new    person = Person.new    in_the_forest(duck)    in_the_forest(person)endgame# 這鴨子正在嘎嘎叫# 這鴨子擁有白色和灰色的羽毛# 這人正在模仿鴨子# 這人在地上拿起1根羽毛然後给其他人看\n\n\n\n只是，由於鴨子型別所帶來的方便與靈活度，也可能早成難以檢測的錯誤，開發者需注意不同類別中相同方法的可能使用。\n\n參考資料https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B\n","dateCreated":"2019-10-24T00:00:00+08:00","dateModified":"2019-10-25T11:49:29+08:00","datePublished":"2019-10-24T00:00:00+08:00","description":"「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」","headline":"Duck Typing","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://chaichai.site/2019/10/24/ducktyping/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai.jpg","logo":{"@type":"ImageObject","url":"chai.jpg"}},"url":"http://chaichai.site/2019/10/24/ducktyping/","keywords":"Ruby學習日誌, Ruby, Rails, OO"}</script>
-    <meta name="description" content="「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」">
-<meta name="keywords" content="Ruby學習日誌,Ruby,Rails,OO">
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai.jpg"},"articleBody":"學 Ruby 時，時常在不同的方法中看到某個神秘變數 self ，self 到底是誰呢？\n\n\n\n何謂 Self ?Ruby 的官方 API 中這麼寫道：\n\nself 是「當前的物件」，以及當沒有明確指定接收者時，訊息（方法呼叫）的預設接收者。 self 所在的上下文決定 self 所代表的物件。\n\n12345class String  def upcase_and_reverse    upcase.reverse  endend\n\n在這個方法中，upcase 這個訊息會被傳到 self，而 self 就是任何呼叫該方法的字串。\n\n\n\n\n\n什麼是「目前的物件」？\n單純地印出 selfself 指的是 main ，即是 object 的實體\n\n1234p self# mainp self.class# Object\n\n\n\n\n在一個 class / module 中self 指的是該 class / module\n\n12345678class Dog  p selfend# Dogmodule Bird  p selfend# Bird\n\n\n\n\n在實體方法中self 指的是當前 class 的實體\n\n12345678910class Dog  def instance_method    self  endendblack = Dog.newblack.instance_method# &lt;Dog:0x00007f85540ede78&gt;black.instance_method == black# true\n\n\n\n\n在類別方法中self 指的是當前的 class\n\n123456789class Dog  def self.class_method    self  endendDog.class_method# DogDog.class_method == Dog# true\n\n\n\n\n混合類型的實體方法即使是在 module 中定義了 hello 方法，self 仍是它所混合的 class 的實體\n\n12345678910111213module Greeting  def hello    self  endendclass Dog  include Greetingendblack = Dog.newblack.hello# &lt;Dog:0x00007fdccc93b3d0&gt;black.hello == black# true\n\n\n\n\n混合類型的類別方法當 extend class 的方法時，self 的行為與普通的類別方法完全一樣\n\n12345678910111213module Greeting  def hello    self  endendclass Dog  extend GreetingendDog.hello# DogDog.hello == Dog# true\n\n\n在 Ruby 中， module 跟 class 都是物件，不論在 class 或 module，self 都是引用它所在的上下文的實體。\n\n\n\n\n\n\n什麼是「訊息的預設接收者」？\n在一個類別方法中self 指的是 Dog ，因此 self.sleep 等於 Dog.sleep\n\n12345678910class Dog  def self.sleep    puts 'zzz'  endendclass Dog  def Dog.sleep    puts 'zzz'  endend\n\n\n\n\n呼叫類別方法，當有明確的接收者時可以用 self 去呼叫 sleep() 這個類別方法\n\n1234567891011121314class Dog  def self.sleep    puts 'zzz'  end  Dog.sleepend# zzzclass Dog  def self.sleep    puts 'zzz'  end  self.sleepend# zzz\n\n\n\n\n呼叫類別方法，當沒有明確的接收者時在 class Dog 中， self 指的是 Dog，所以可以省略 self。因為沒有傳訊息或接收者物件的小數點符號，當呼叫沒有接收者的方法時，訊息會傳給當前的值。由於當前的值是 Dog（預設接收者），可以直接呼叫類別方法 sleep。\n\n1234567class Dog  def self.sleep    puts 'zzz'  end  sleepend# zzz\n\n\n\n\n在 Ruby 中，呼叫方法是以 obj.method 的方式，用一個小數點標記，左邊是接收者，右邊是方法。但是，當接收者是 self 的時候，可以省略接收者和小數點。Ruby 將 self 當做預設的接收者，代表訊息會傳給 self。method == self.method。必須注意的是，在呼叫寫入方法時（以等號結束的方法），即使是傳訊息給當前的 self ，也不能省略。例如：呼叫方法 abc =，要寫成 self.abc = “hello”。如果寫成 abc = “hello” ，Ruby 會解讀爲對局部變數的賦值。\n\n\n\n\n參考資料：https://ruby-doc.org/docs/keywords/1.9/Object.html#method-i-selfhttps://rubyplus.com/articles/4861-Ruby-Basics-The-Default-Receiverhttps://www.honeybadger.io/blog/ruby-self-cheat-sheet/https://www.iteye.com/blog/fantaxy025025-1108639http://www.52help.net/tw/ruby/63.mhtml\n","dateCreated":"2019-10-25T00:00:00+08:00","dateModified":"2019-10-25T11:50:58+08:00","datePublished":"2019-10-25T00:00:00+08:00","description":"學 Ruby 時，時常在不同的方法中看到某個神秘變數 self ，self 到底是誰呢？","headline":"Ruby Self","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://chaichai.site/2019/10/25/ruby_self/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai.jpg","logo":{"@type":"ImageObject","url":"chai.jpg"}},"url":"http://chaichai.site/2019/10/25/ruby_self/","keywords":"Ruby學習日誌, Ruby, Rails"}</script>
+    <meta name="description" content="學 Ruby 時，時常在不同的方法中看到某個神秘變數 self ，self 到底是誰呢？">
+<meta name="keywords" content="Ruby學習日誌,Ruby,Rails">
 <meta property="og:type" content="blog">
-<meta property="og:title" content="Duck Typing">
-<meta property="og:url" content="http://chaichai.site/2019/10/24/ducktyping/index.html">
+<meta property="og:title" content="Ruby Self">
+<meta property="og:url" content="http://chaichai.site/2019/10/25/ruby_self/index.html">
 <meta property="og:site_name" content="Chai&#39;s Blog">
-<meta property="og:description" content="「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」">
+<meta property="og:description" content="學 Ruby 時，時常在不同的方法中看到某個神秘變數 self ，self 到底是誰呢？">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:updated_time" content="2019-10-25T03:49:29.167Z">
+<meta property="og:updated_time" content="2019-10-25T03:50:58.775Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Duck Typing">
-<meta name="twitter:description" content="「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」">
+<meta name="twitter:title" content="Ruby Self">
+<meta name="twitter:description" content="學 Ruby 時，時常在不同的方法中看到某個神秘變數 self ，self 到底是誰呢？">
     
     
         
@@ -255,14 +255,14 @@
         <div class="post-header main-content-wrap text-left">
     
         <h1 class="post-title">
-            Duck Typing
+            Ruby Self
         </h1>
     
     
         <div class="post-meta">
-    <time datetime="2019-10-24T00:00:00+08:00">
+    <time datetime="2019-10-25T00:00:00+08:00">
 	
-		    10月 24, 2019
+		    10月 25, 2019
     	
     </time>
     
@@ -280,23 +280,98 @@
     
     <div class="post-content markdown">
         <div class="main-content-wrap">
-            <p>「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」</p>
+            <p>學 Ruby 時，時常在不同的方法中看到某個神秘變數 self ，self 到底是誰呢？</p>
 <a id="more"></a>
 
 <hr>
-<p>簡單來說，假設有一隻鳥，他會游泳、會叫，而我們定義的鴨子需要會游泳、會叫，就可以說那隻鳥是鴨子，即使它可能是一隻企鵝。</p>
-<p>我們並不在乎他是否繼承自鴨子的血緣，到底是不是鴨子，只在乎他的「行為」。</p>
-<p>比如在 Ruby 等程式語言中，有中括號 [ ] 取值的方法，除了陣列以外，字串、Hash 等物件都可以使用，甚至是在自訂的 class 中寫入中括號的方法，不管它的型別是什麼，只要具備中括號的方法，就可以使用。</p>
+<h1 id="何謂-Self"><a href="#何謂-Self" class="headerlink" title="何謂 Self ?"></a>何謂 Self ?</h1><p>Ruby 的官方 API 中這麼寫道：</p>
+<blockquote>
+<p>self 是「當前的物件」，以及當沒有明確指定接收者時，訊息（方法呼叫）的預設接收者。 self 所在的上下文決定 self 所代表的物件。</p>
+</blockquote>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">String</span></span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">upcase_and_reverse</span></span></span><br><span class="line">    upcase.reverse</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>在這個方法中，upcase 這個訊息會被傳到 self，而 self 就是任何呼叫該方法的字串。</p>
 <br>
 
-<p>以下的範例體現了鴨子測試，只要有 quack, feathers 方法，對 <code>in_the_forest</code> 函式而言，該物件就是一個鴨子。</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Duck</span></span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">quack</span></span></span><br><span class="line">        puts <span class="string">"這鴨子正在嘎嘎叫"</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">feathers</span></span></span><br><span class="line">        puts <span class="string">"這鴨子擁有白色和灰色的羽毛"</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span></span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">quack</span></span></span><br><span class="line">        puts <span class="string">"這人正在模仿鴨子"</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">feathers</span></span></span><br><span class="line">        puts <span class="string">"這人在地上拿起1根羽毛然後给其他人看"</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">in_the_forest</span><span class="params">(duck)</span></span></span><br><span class="line">    duck.quack</span><br><span class="line">    duck.feathers</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">game</span></span></span><br><span class="line">    duck = Duck.new</span><br><span class="line">    person = Person.new</span><br><span class="line">    in_the_forest(duck)</span><br><span class="line">    in_the_forest(person)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">game</span><br><span class="line"></span><br><span class="line"><span class="comment"># 這鴨子正在嘎嘎叫</span></span><br><span class="line"><span class="comment"># 這鴨子擁有白色和灰色的羽毛</span></span><br><span class="line"><span class="comment"># 這人正在模仿鴨子</span></span><br><span class="line"><span class="comment"># 這人在地上拿起1根羽毛然後给其他人看</span></span><br></pre></td></tr></table></figure>
-
-<br>
-
-<p>只是，由於鴨子型別所帶來的方便與靈活度，也可能早成難以檢測的錯誤，開發者需注意不同類別中相同方法的可能使用。<br><br></p>
 <hr>
-<p>參考資料<br><a href="https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B</a></p>
+<br>
+
+<h2 id="什麼是「目前的物件」？"><a href="#什麼是「目前的物件」？" class="headerlink" title="什麼是「目前的物件」？"></a>什麼是「目前的物件」？</h2><ul>
+<li>單純地印出 self<br>self 指的是 main ，即是 object 的實體</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">p <span class="keyword">self</span></span><br><span class="line"><span class="comment"># main</span></span><br><span class="line">p <span class="keyword">self</span>.<span class="keyword">class</span></span><br><span class="line"><span class="comment"># Object</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>在一個 class / module 中<br>self 指的是該 class / module</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span></span></span><br><span class="line">  p <span class="keyword">self</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment"># Dog</span></span><br><span class="line"><span class="class"><span class="keyword">module</span> <span class="title">Bird</span></span></span><br><span class="line">  p <span class="keyword">self</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment"># Bird</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>在實體方法中<br>self 指的是當前 class 的實體</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span></span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">instance_method</span></span></span><br><span class="line">    <span class="keyword">self</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">black = Dog.new</span><br><span class="line">black.instance_method</span><br><span class="line"><span class="comment"># &lt;Dog:0x00007f85540ede78&gt;</span></span><br><span class="line">black.instance_method == black</span><br><span class="line"><span class="comment"># true</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>在類別方法中<br>self 指的是當前的 class</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class Dog</span><br><span class="line">  def self.class_method</span><br><span class="line">    self</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line">Dog.class_method</span><br><span class="line"># Dog</span><br><span class="line">Dog.class_method == Dog</span><br><span class="line"># true</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>混合類型的實體方法<br>即使是在 module 中定義了 hello 方法，self 仍是它所混合的 class 的實體</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">module Greeting</span><br><span class="line">  def hello</span><br><span class="line">    self</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line">class Dog</span><br><span class="line">  include Greeting</span><br><span class="line">end</span><br><span class="line">black = Dog.new</span><br><span class="line">black.hello</span><br><span class="line"># &lt;Dog:0x00007fdccc93b3d0&gt;</span><br><span class="line">black.hello == black</span><br><span class="line"># true</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>混合類型的類別方法<br>當 extend class 的方法時，self 的行為與普通的類別方法完全一樣</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">module</span> <span class="title">Greeting</span></span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">hello</span></span></span><br><span class="line">    <span class="keyword">self</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span></span></span><br><span class="line">  extend Greeting</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">Dog.hello</span><br><span class="line"><span class="comment"># Dog</span></span><br><span class="line">Dog.hello == Dog</span><br><span class="line"><span class="comment"># true</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在 Ruby 中， module 跟 class 都是物件，不論在 class 或 module，self 都是引用它所在的上下文的實體。</p>
+</blockquote>
+<br>
+
+<hr>
+<br>
+
+<h2 id="什麼是「訊息的預設接收者」？"><a href="#什麼是「訊息的預設接收者」？" class="headerlink" title="什麼是「訊息的預設接收者」？"></a>什麼是「訊息的預設接收者」？</h2><ul>
+<li>在一個類別方法中<br>self 指的是 Dog ，因此 self.sleep 等於 Dog.sleep</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span></span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">self</span>.<span class="title">sleep</span></span></span><br><span class="line">    puts <span class="string">'zzz'</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span></span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">Dog</span>.<span class="title">sleep</span></span></span><br><span class="line">    puts <span class="string">'zzz'</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>呼叫類別方法，當有明確的接收者時<br>可以用 self 去呼叫 sleep() 這個類別方法</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span></span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">self</span>.<span class="title">sleep</span></span></span><br><span class="line">    puts <span class="string">'zzz'</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  Dog.sleep</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment"># zzz</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span></span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">self</span>.<span class="title">sleep</span></span></span><br><span class="line">    puts <span class="string">'zzz'</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">self</span>.sleep</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment"># zzz</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>呼叫類別方法，當沒有明確的接收者時<br>在 class Dog 中， self 指的是 Dog，所以可以省略 self。<br>因為沒有傳訊息或接收者物件的小數點符號，當呼叫沒有接收者的方法時，訊息會傳給當前的值。由於當前的值是 Dog（預設接收者），可以直接呼叫類別方法 sleep。</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span></span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">self</span>.<span class="title">sleep</span></span></span><br><span class="line">    puts <span class="string">'zzz'</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  sleep</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment"># zzz</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<blockquote>
+<p>在 Ruby 中，呼叫方法是以 obj.method 的方式，用一個小數點標記，左邊是接收者，右邊是方法。<br>但是，當接收者是 self 的時候，可以省略接收者和小數點。Ruby 將 self 當做預設的接收者，代表訊息會傳給 self。method == self.method。<br>必須注意的是，在呼叫寫入方法時（以等號結束的方法），即使是傳訊息給當前的 self ，也不能省略。<br>例如：呼叫方法 abc =，要寫成 self.abc = “hello”。如果寫成 abc = “hello” ，Ruby 會解讀爲對局部變數的賦值。</p>
+</blockquote>
+<br>
+
+<hr>
+<p>參考資料：<br><a href="https://ruby-doc.org/docs/keywords/1.9/Object.html#method-i-self" target="_blank" rel="noopener">https://ruby-doc.org/docs/keywords/1.9/Object.html#method-i-self</a><br><a href="https://rubyplus.com/articles/4861-Ruby-Basics-The-Default-Receiver" target="_blank" rel="noopener">https://rubyplus.com/articles/4861-Ruby-Basics-The-Default-Receiver</a><br><a href="https://www.honeybadger.io/blog/ruby-self-cheat-sheet/" target="_blank" rel="noopener">https://www.honeybadger.io/blog/ruby-self-cheat-sheet/</a><br><a href="https://www.iteye.com/blog/fantaxy025025-1108639" target="_blank" rel="noopener">https://www.iteye.com/blog/fantaxy025025-1108639</a><br><a href="http://www.52help.net/tw/ruby/63.mhtml" target="_blank" rel="noopener">http://www.52help.net/tw/ruby/63.mhtml</a></p>
 
             
 
@@ -308,7 +383,7 @@
             <div class="post-footer-tags">
                 <span class="text-color-light text-small">標籤</span><br/>
                 
-    <a class="tag tag--primary tag--small t-link" href="/tags/OO/">OO</a> <a class="tag tag--primary tag--small t-link" href="/tags/Rails/">Rails</a> <a class="tag tag--primary tag--small t-link" href="/tags/Ruby/">Ruby</a> <a class="tag tag--primary tag--small t-link" href="/tags/Ruby學習日誌/">Ruby學習日誌</a>
+    <a class="tag tag--primary tag--small t-link" href="/tags/Rails/">Rails</a> <a class="tag tag--primary tag--small t-link" href="/tags/Ruby/">Ruby</a> <a class="tag tag--primary tag--small t-link" href="/tags/Ruby學習日誌/">Ruby學習日誌</a>
 
             </div>
         
@@ -318,14 +393,11 @@
         <ul class="post-actions post-action-nav">
             <li class="post-action">
                 
-                    
-                <a
-                    class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/10/25/ruby_self/"
-                    data-tooltip="Ruby Self"
-                    aria-label="上一篇: Ruby Self"
-                >
-                    
+                    <a
+                        class="post-action-btn btn btn--disabled"
+                        aria-hidden="true"
+                    >
+                        
                         <i class="fa fa-angle-left" aria-hidden="true"></i>
                         <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
                     </a>
@@ -335,9 +407,9 @@
                     
                 <a
                     class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/10/23/ruby_symbol/"
-                    data-tooltip="Ruby Symbol"
-                    aria-label="下一篇: Ruby Symbol"
+                    href="/2019/10/24/ducktyping/"
+                    data-tooltip="Duck Typing"
+                    aria-label="下一篇: Duck Typing"
                 >
                     
                         <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
@@ -362,7 +434,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/25/ruby_self/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -375,7 +447,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/25/ruby_self/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -388,7 +460,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://plus.google.com/share?url=http://chaichai.site/2019/10/25/ruby_self/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -433,14 +505,11 @@
         <ul class="post-actions post-action-nav">
             <li class="post-action">
                 
-                    
-                <a
-                    class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/10/25/ruby_self/"
-                    data-tooltip="Ruby Self"
-                    aria-label="上一篇: Ruby Self"
-                >
-                    
+                    <a
+                        class="post-action-btn btn btn--disabled"
+                        aria-hidden="true"
+                    >
+                        
                         <i class="fa fa-angle-left" aria-hidden="true"></i>
                         <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
                     </a>
@@ -450,9 +519,9 @@
                     
                 <a
                     class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/10/23/ruby_symbol/"
-                    data-tooltip="Ruby Symbol"
-                    aria-label="下一篇: Ruby Symbol"
+                    href="/2019/10/24/ducktyping/"
+                    data-tooltip="Duck Typing"
+                    aria-label="下一篇: Duck Typing"
                 >
                     
                         <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
@@ -477,7 +546,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/25/ruby_self/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -490,7 +559,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/25/ruby_self/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -503,7 +572,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://plus.google.com/share?url=http://chaichai.site/2019/10/25/ruby_self/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -537,7 +606,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/24/ducktyping/"
+                        href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/25/ruby_self/"
                         aria-label="分享到 Facebook"
                     >
                         <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
@@ -550,7 +619,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/24/ducktyping/"
+                        href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/25/ruby_self/"
                         aria-label="分享到 Twitter"
                     >
                         <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
@@ -563,7 +632,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://plus.google.com/share?url=http://chaichai.site/2019/10/24/ducktyping/"
+                        href="https://plus.google.com/share?url=http://chaichai.site/2019/10/25/ruby_self/"
                         aria-label="分享到 Google+"
                     >
                         <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
