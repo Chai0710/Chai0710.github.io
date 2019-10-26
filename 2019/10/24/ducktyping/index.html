@@ -12,17 +12,17 @@
         <meta name="keywords" content="Ruby on Rails,Programmer,">
     
     
-        <link rel="icon" href="http://chaichai.site/assets/images/st.png">
+        <link rel="icon" href="https://chaichai.site/assets/images/st.png">
     
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」\n\n\n\n簡單來說，假設有一隻鳥，他會游泳、會叫，而我們定義的鴨子需要會游泳、會叫，就可以說那隻鳥是鴨子，即使它可能是一隻企鵝。\n我們並不在乎他是否繼承自鴨子的血緣，到底是不是鴨子，只在乎他的「行為」。\n比如在 Ruby 等程式語言中，有中括號 [ ] 取值的方法，除了陣列以外，字串、Hash 等物件都可以使用，甚至是在自訂的 class 中寫入中括號的方法，不管它的型別是什麼，只要具備中括號的方法，就可以使用。\n\n\n以下的範例體現了鴨子測試，只要有 quack, feathers 方法，對 in_the_forest 函式而言，該物件就是一個鴨子。\n123456789101112131415161718192021222324252627282930313233343536373839404142class Duck    def quack        puts \"這鴨子正在嘎嘎叫\"    end    def feathers        puts \"這鴨子擁有白色和灰色的羽毛\"    endendclass Person    def quack        puts \"這人正在模仿鴨子\"    end    def feathers        puts \"這人在地上拿起1根羽毛然後给其他人看\"    endenddef in_the_forest(duck)    duck.quack    duck.feathersenddef game    duck = Duck.new    person = Person.new    in_the_forest(duck)    in_the_forest(person)endgame# 這鴨子正在嘎嘎叫# 這鴨子擁有白色和灰色的羽毛# 這人正在模仿鴨子# 這人在地上拿起1根羽毛然後给其他人看\n\n\n\n只是，由於鴨子型別所帶來的方便與靈活度，也可能早成難以檢測的錯誤，開發者需注意不同類別中相同方法的可能使用。\n\n參考資料https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B\n","dateCreated":"2019-10-24T00:00:00+08:00","dateModified":"2019-10-25T11:49:29+08:00","datePublished":"2019-10-24T00:00:00+08:00","description":"「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」","headline":"Duck Typing","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://chaichai.site/2019/10/24/ducktyping/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"http://chaichai.site/2019/10/24/ducktyping/","keywords":"Ruby學習日誌, Ruby, Rails, OO"}</script>
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」\n\n\n\n簡單來說，假設有一隻鳥，他會游泳、會叫，而我們定義的鴨子需要會游泳、會叫，就可以說那隻鳥是鴨子，即使它可能是一隻企鵝。\n我們並不在乎他是否繼承自鴨子的血緣，到底是不是鴨子，只在乎他的「行為」。\n比如在 Ruby 等程式語言中，有中括號 [ ] 取值的方法，除了陣列以外，字串、Hash 等物件都可以使用，甚至是在自訂的 class 中寫入中括號的方法，不管它的型別是什麼，只要具備中括號的方法，就可以使用。\n\n\n以下的範例體現了鴨子測試，只要有 quack, feathers 方法，對 in_the_forest 函式而言，該物件就是一個鴨子。\n123456789101112131415161718192021222324252627282930313233343536373839404142class Duck    def quack        puts \"這鴨子正在嘎嘎叫\"    end    def feathers        puts \"這鴨子擁有白色和灰色的羽毛\"    endendclass Person    def quack        puts \"這人正在模仿鴨子\"    end    def feathers        puts \"這人在地上拿起1根羽毛然後给其他人看\"    endenddef in_the_forest(duck)    duck.quack    duck.feathersenddef game    duck = Duck.new    person = Person.new    in_the_forest(duck)    in_the_forest(person)endgame# 這鴨子正在嘎嘎叫# 這鴨子擁有白色和灰色的羽毛# 這人正在模仿鴨子# 這人在地上拿起1根羽毛然後给其他人看\n\n\n\n只是，由於鴨子型別所帶來的方便與靈活度，也可能早成難以檢測的錯誤，開發者需注意不同類別中相同方法的可能使用。\n\n參考資料https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B\n","dateCreated":"2019-10-24T00:00:00+08:00","dateModified":"2019-10-25T11:49:29+08:00","datePublished":"2019-10-24T00:00:00+08:00","description":"「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」","headline":"Duck Typing","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/10/24/ducktyping/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/10/24/ducktyping/","keywords":"Ruby學習日誌, Ruby, Rails, OO"}</script>
     <meta name="description" content="「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」">
 <meta name="keywords" content="Ruby學習日誌,Ruby,Rails,OO">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Duck Typing">
-<meta property="og:url" content="http://chaichai.site/2019/10/24/ducktyping/index.html">
+<meta property="og:url" content="https://chaichai.site/2019/10/24/ducktyping/index.html">
 <meta property="og:site_name" content="Chai&#39;s Blog">
 <meta property="og:description" content="「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」">
 <meta property="og:locale" content="zh-tw">
@@ -35,7 +35,7 @@
         
     
     
-        <meta property="og:image" content="http://chaichai.site/assets/images/chai2.jpg"/>
+        <meta property="og:image" content="https://chaichai.site/assets/images/chai2.jpg"/>
     
     
     
@@ -351,7 +351,7 @@
             <a
                 class="post-action-btn btn btn--default btn-open-shareoptions"
                 href="#btn-open-shareoptions"
-                aria-label="Diesen Beitrag teilen"
+                aria-label="Share this post"
             >
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
@@ -362,7 +362,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/24/ducktyping/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -375,7 +375,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/24/ducktyping/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -388,7 +388,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/10/24/ducktyping/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -401,7 +401,7 @@
         
         <li class="post-action">
             
-                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Back to top">
             
                 <i class="fa fa-list" aria-hidden="true"></i>
             </a>
@@ -466,7 +466,7 @@
             <a
                 class="post-action-btn btn btn--default btn-open-shareoptions"
                 href="#btn-open-shareoptions"
-                aria-label="Diesen Beitrag teilen"
+                aria-label="Share this post"
             >
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
@@ -477,7 +477,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/24/ducktyping/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -490,7 +490,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/24/ducktyping/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -503,7 +503,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=http://chaichai.site/2019/10/24/ducktyping/"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/10/24/ducktyping/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -516,7 +516,7 @@
         
         <li class="post-action">
             
-                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Back to top">
             
                 <i class="fa fa-list" aria-hidden="true"></i>
             </a>
@@ -537,7 +537,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://www.facebook.com/sharer/sharer.php?u=http://chaichai.site/2019/10/24/ducktyping/"
+                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/24/ducktyping/"
                         aria-label="分享到 Facebook"
                     >
                         <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
@@ -550,7 +550,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://twitter.com/intent/tweet?text=http://chaichai.site/2019/10/24/ducktyping/"
+                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/24/ducktyping/"
                         aria-label="分享到 Twitter"
                     >
                         <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
@@ -563,7 +563,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://plus.google.com/share?url=http://chaichai.site/2019/10/24/ducktyping/"
+                        href="https://plus.google.com/share?url=https://chaichai.site/2019/10/24/ducktyping/"
                         aria-label="分享到 Google+"
                     >
                         <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
@@ -638,7 +638,7 @@
                     <div class="media-body">
                         <a
                             class="link-unstyled"
-                            href="http://chaichai.site/2019/10/01/welcome/"
+                            href="https://chaichai.site/2019/10/01/welcome/"
                             aria-label=": Welcome"
                         >
                             <h3 class="media-heading">Welcome</h3>
@@ -661,7 +661,7 @@
                     <div class="media-body">
                         <a
                             class="link-unstyled"
-                            href="http://chaichai.site/2019/10/23/ruby_symbol/"
+                            href="https://chaichai.site/2019/10/23/ruby_symbol/"
                             aria-label=": Ruby Symbol"
                         >
                             <h3 class="media-heading">Ruby Symbol</h3>
@@ -684,7 +684,7 @@
                     <div class="media-body">
                         <a
                             class="link-unstyled"
-                            href="http://chaichai.site/2019/10/24/ducktyping/"
+                            href="https://chaichai.site/2019/10/24/ducktyping/"
                             aria-label=": Duck Typing"
                         >
                             <h3 class="media-heading">Duck Typing</h3>
@@ -707,7 +707,7 @@
                     <div class="media-body">
                         <a
                             class="link-unstyled"
-                            href="http://chaichai.site/2019/10/25/ruby_self/"
+                            href="https://chaichai.site/2019/10/25/ruby_self/"
                             aria-label=": Ruby Self"
                         >
                             <h3 class="media-heading">Ruby Self</h3>
