@@ -1,0 +1,987 @@
+
+<!DOCTYPE html>
+<html lang="zh-tw">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Chai&#39;s Blog">
+    <title>RESTful API - Chai&#39;s Blog</title>
+    <meta name="author" content="Chai Wei-Li">
+    
+        <meta name="keywords" content="Ruby on Rails,Programmer,">
+    
+    
+        <link rel="icon" href="https://chaichai.site/assets/images/st.png">
+    
+    
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
+    
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"為了理解目前 API 設計的主流，試著整理了網路上的解說文章，作為學習筆記。\n\n\n\n何謂 RESTful?簡單來說，就是把每個網址當做資源（Resource）來看待，對同一個資源做不同的動作（HTTP Verb）會得到不同的結果。符合 REST 概念設計的網址，又稱之 RESTful Route。\n\n\n\nREST 全名\n\nResource : 資源\nRepresentational : JSON, XML, YAML..\nState Transfer : 狀態傳輸，透過 HTTP 動詞實現\n\n\n\n\nAPI 範例\n\n非 RESTful 的 API 可能長這樣：\n\n1234/api/get_file/ ( 得到檔案 )/api/upload_file/ ( 新增檔案 )/api/update_file/ ( 更新檔案 )/api/delete_file/ ( 刪除檔案 )\n\n\nRESTful API ：\n\n1234/api/files/ ( GET -&gt; 得到檔案 )/api/files/ ( POST -&gt; 新增檔案 )/api/files/ ( PUT -&gt; 更新檔案)/api/files/ ( DELETE -&gt; 刪除檔案 )\n\n\n\n\n\nRESTful Triangle\n\nNouns 名詞：定義網址的 URL，每個資源僅有一個唯一的識別位置，就像家的住址。\nVerbs 動詞：描述了對 Nouns 名詞 (資源 URL) 的操作動作，在 HTTP 1.1 的實作就是 HTTP Method。\nContent Types 資源呈現方式：比如取得某一個 URL 文章的 HTML 格式、或者 XML 格式，同樣的 URL 資源可以有不同型態的表現方式。\n\n建議在設計 API 規格時，同時思考上述的設計原則，好讓 API 設計更接近 REST 精神。\n\n\n\n\n\nRESTful API 設計要點\n\nHTTP 動詞在HTTP*通訊協定中制定了九種動詞(Verbs)來跟伺服器溝通，分別是HEAD*、_GET_、_POST_、_PUT_、_PATCH_、_DELETE_、_TRACE_、_OPTIONS_、_CONNECT_。\n\n常用的 HTTP method：\n\n\n\n\nHTTP\nMethod Idempotent\nSafe\n\n\n\nGET（讀取資源）\nyes\nyes\n\n\nHEAD（類似 GET，但只回傳 HTTP header）\nyes\nyes\n\n\nPUT （替換資源）\nyes\nno\n\n\nPOST（新增資源）\nno\nno\n\n\nDELETE（刪除資源）\nyes\nno\n\n\nPATCH（更新資源部份內容）\nno\nno\n\n\n\nSafe / Idempotent\n\n「safe」是指該操作不會改變伺服器端的資源狀態（而且結果可以被 cache）\n\n「idempotent」是指該操作不管做 1 遍或做 n 遍，都會得到同樣的資源狀態結果（但不一定得到同樣的回傳值，例如第 2 次 DELETE 請求可能回傳 404），因此 client 端可以放心 retry。\n\n\n\n\n\nPUT、POST 和 PATCH 容易混淆，補充說明如下：\n\nPUT通常是用來替換單一資源或資源集合 (resource collection) 的內容。\nPOST除了用來新增資源，也作為 catch-all 用途，例如用在 utility API。（Utility API 是不同於一般資源讀寫操作的要求類型，例如檢查某個促銷活動碼是否有效。）\nPATCH用來更新資源部份內容。前幾年有人會用 POST 代替 PATCH，現在應該沒這必要了；建議除非 infrastructure 有限制，否則直接用 PATCH 即可。\n\n\n\n\n\nURI 名詞相對於 HTTP 動詞，URI 就是名詞了。URI 由 prefix + API endpoint 組成。Prefix 的部份可有可無，例如/api或/api/v1。API endpoint 的設計，幾個重要原則如下：\n\n一般資源用複數名詞，例如 /books 或 /books/123\n有些人認為用單數比較好，因為/book/123看似比/books/123合理；但想想檔案系統的目錄命名（例如/Users或/Documents），其實用複數也沒問題。複數可以保持 API endpoint 的一致性，所以一般資源建議用複數。\n\n\n唯一資源（亦即對 client 而言只有一份的資源）用單數名詞。例如GitHub watching API中的GET /user/subscriptions，其中user是指目前驗證的使用者，所以用單數。\n資源的層級架構，可以適當反應在 API endpoint 設計上，例如/books/123/chapters/2。\nUtility API 與 resource API 性質不同，它的 endpoint 設計只要合理即可，例如/search?q={keywords}。\n建議 URI components 都用小寫，兩個字之間用減號-或底線_隔開皆可，但應保持一致。（我個人偏好用-）\n\n\n\nHTTP 回傳狀態碼API 回傳的結果，應使用適當的 HTTP 狀態碼，所以 API 設計者必須了解它們。以下是一些常用的狀態碼，完整列表請參考Wikipedia。\n\n2xx: 成功\n\n200 OK: 通用狀態碼\n201 Created: 資源新增成功\n202 Accepted: 請求已接受，但尚在處理中\n204 No Content: 請求成功，但未回傳任何內容\n\n\n3xx: 重新導向\n\n301 Moved Permanently: 資源已移至它處\n303 See Other: 回傳的內容可在它處取得（例如在用戶端發送了一個 POST 請求之後）\n304 Not Modified: 請求的資源並未修改（通常是用戶端發送了帶有 If-Modified-Since 或 If-None-Match 表頭的請求）\n\n\n4xx: 用戶端錯誤\n（用戶端不應 retry 原始請求）\n\n400 Bad Request: 通用狀態碼\n401 Unauthorized: 用戶端尚未驗證*\n403 Forbidden: 用戶端被禁止此請求*\n404 Not Found: 請求的資源不存在\n405 Method Not Allowed: 不支援請求的 HTTP 方法\n406 Not Acceptable: 不支援請求所要求的內容類型*（Accept 表頭）\n415 Unsupported Media Type: 不支援請求所用的內容類型*（Content-Type 表頭）\n\n\n5xx: 伺服器錯誤\n（用戶端可合理 retry）\n\n500 Internal Server Error: 工程師要找 bug 了\n501 Not Implemented: 用戶端的請求目前未支援（也就是將來有可能支援）\n502 Bad Gateway: 上游的伺服器未回傳正確結果，一般是 gateway 或 proxy server 才會回傳此狀態碼\n503 Service Unavailable: 暫停服務（也就是過不久就會恢復服務 ── 如果一切順利的話）\n504 Gateway Timeout: 上游的伺服器逾時，一般是 gateway 或 proxy server 才會回傳此狀態碼\n\n\n\n* 關於幾個容易混淆的狀態碼，補充說明如下：\n\n401、403: 401 是指用戶端尚未驗證，也就是 unauthenticated（HTTP spec 裡用 unauthorized 有些誤導）；403 是指用戶端目前的身份不被允許此項請求（通常是用戶端已驗證過了），或是所有使用者都不被允許此項請求。\n406、415: 406 是指用戶端要求「回傳」的 Content-Type（也就是用戶端在 Accept 表頭裡所要求的），伺服器不支援；415 是指用戶端送出的「請求」，其 Content-Type（也就是用戶端 HTTP request body 的內容類型），伺服器不支援。\n\n另外要注意，這些回傳的狀態碼，是代表 API 這一層的執行狀態，而不是商業邏輯這一層的狀態。例如當/search?q=xyz搜尋結果是空的，API 結果仍應回傳 200，而非 404；因為從 API 角度來看，/search這個「資源」存在，而且 API 執行成功。\n\n\nHTTP Header用戶端送出 API 請求時，可能會帶一些 HTTP header，例如：\n\nAccept: 能夠接受的回應內容類型 (Content-Type)，屬於內容協商的一環\nAuthorization: 認證資訊\n\n至於 API 回傳結果的 HTTP header，沒甚麼特別之處，按照一般原則處理即可（例如 Content-Type、Content-Length、ETag、Cache-Control…）。\n\n\nHTTP Body: JSON 或 XML 格式現在 JSON 已被普遍支援，加上 JSON 處理上較簡潔，所以越來越多人採用 JSON 作為 API 的 HTTP body 格式。但要採用 JSON 或 XML（或同時支援兩種格式），仍應視專案的實際需求而定。\n\n\n其它原則\n與 HTTP 一樣，API 應該是 stateless，也就是一項工作單元不應由二個或二個以上 API 組成。（這也引申出一個有趣的問題：REST API 如何支援 transaction？這個問題超出本篇文章的範圍，以後有機會再談。）\nREST API 所呈現的資源，是從應用面及 client 角度來思考，並不需要和後端的資源儲存形式（例如資料庫 schema）維持一對一的關係。\nHATEOAS (Hypermedia as the engine of application state) 雖然是 REST 原始定義裡的一環，但我認為不一定需要。\nQuery parameter 的部份，只要風格保持一致即可，REST 對此並無特殊規範。\n\n\n\n\n\n\nRESTful 架構的實踐\n\nHTTPHTTP 1.1 本身就是 REST 架構的實踐，我們可以遵循它定義好的規格，例如：\n\n透過 HTTP Status Code 回傳 API 執行結果\n利用 HTTP Accept Header 告知 Server 指定回傳的資料格式 Content-type，JSON 可以送出 application/json、XML 可以送出 application/xml 等等\n透過 POST 新增資料到 Server，執行成功後回傳 201 Status Code 並且透過 Location Header 告知新資源的 URL\n\n\n\n優缺點\n優點：\n網址更直觀，不同開發人員都遵照慣例設計網址，易於維護、擴展。\nREST 設計將每一個實體定義獨立唯一的 URL 位置，物件資源相互的依賴性降低，API 解耦特性更好，容易彈性組合應付多數業務邏輯。\n\n\n缺點\n安全性問題，假設使用者知道 /member/1 是自己的會員資料，他就可以嘗試從 /member/100 得到其他用戶的資料，須對使用者做身份驗證。\n資源相依結構鬆散問題，假設想要取得文章與作者資訊，就必須先 GET /文章/{ID} ，然後再透過取回的文章物件中的 Author 欄位再一次呼叫 GET /使用者/{NAME} 取得作者資訊，較為麻煩。\n\n\n\n\n\n\n參考資料https://railsbook.tw/chapters/11-routes.html#restful-routes\nhttps://ihower.tw/rails/restful.html\nhttps://tw.twincl.com/programming/*641y\nhttps://github.com/twtrubiks/django-rest-framework-tutorial/tree/master/RESTful-API-Tutorial\nhttps://www.webguide.nat.gov.tw/News_Content.aspx?n=531&amp;s=2918\n","dateCreated":"2019-10-27T00:00:00+08:00","dateModified":"2019-10-27T17:59:10+08:00","datePublished":"2019-10-27T00:00:00+08:00","description":"為了理解目前 API 設計的主流，試著整理了網路上的解說文章，作為學習筆記。","headline":"RESTful API","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/10/27/restful_api/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/10/27/restful_api/","keywords":"Rails, 學習日誌, Web"}</script>
+    <meta name="description" content="為了理解目前 API 設計的主流，試著整理了網路上的解說文章，作為學習筆記。">
+<meta name="keywords" content="Rails,學習日誌,Web">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="RESTful API">
+<meta property="og:url" content="https://chaichai.site/2019/10/27/restful_api/index.html">
+<meta property="og:site_name" content="Chai&#39;s Blog">
+<meta property="og:description" content="為了理解目前 API 設計的主流，試著整理了網路上的解說文章，作為學習筆記。">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:image" content="https://image.slidesharecdn.com/asitrest-150317020843-conversion-gate01/95/learn-rest-api-at-asit-6-638.jpg?cb=1426576159">
+<meta property="og:updated_time" content="2019-10-27T09:59:10.558Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RESTful API">
+<meta name="twitter:description" content="為了理解目前 API 設計的主流，試著整理了網路上的解說文章，作為學習筆記。">
+<meta name="twitter:image" content="https://image.slidesharecdn.com/asitrest-150317020843-conversion-gate01/95/learn-rest-api-at-asit-6-638.jpg?cb=1426576159">
+    
+    
+        
+    
+    
+        <meta property="og:image" content="https://chaichai.site/assets/images/chai2.jpg"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/assets/css/style-cfvtcukseptqvusuk7rzmd0l1apgmghnwq0qzcswk9li23zcutw2uurypnfc.min.css">
+    <!--STYLES END-->
+    
+
+    
+
+    
+        
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a
+            class="header-title-link"
+            href="/ "
+            aria-label=""
+        >
+            Chai&#39;s Blog
+        </a>
+    </div>
+    
+        
+            <a
+                class="header-right-icon open-algolia-search"
+                href="#search"
+                aria-label="打開鏈接: /#search"
+            >
+        
+        
+            <i class="search fa-lg"></i>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+
+        
+    
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a
+                    href="/#about"
+                    aria-label="閱讀有關作者的更多信息"
+                >
+                    <img class="sidebar-profile-picture" src="/assets/images/chai2.jpg" alt="作者的圖片"/>
+                </a>
+                <h4 class="sidebar-profile-name">Chai Wei-Li</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>A Laguageholic</br>Recently addicted to programing language.</p></h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="首頁"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">首頁</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="分類"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">分類</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="標籤"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">標籤</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="所有文章"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">所有文章</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-algolia-search"
+                             href="#search"
+                            
+                            title="搜尋"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">搜尋</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="關於"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">關於</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/Chai0710" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fab fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/in/weili-chai-619570128/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fab fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/wown0710@gmail.com"
+                            title="Email"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-envelope" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Email</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="Atom"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Atom</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="4"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            RESTful API
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2019-10-27T00:00:00+08:00">
+	
+		    10月 27, 2019
+    	
+    </time>
+    
+        <span>分類 </span>
+        
+    <a class="category-link" href="/categories/學習日誌/">學習日誌</a>
+
+
+    
+</div>
+
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <p>為了理解目前 API 設計的主流，試著整理了網路上的解說文章，作為學習筆記。</p>
+<a id="more"></a>
+
+<hr>
+<h2 id="何謂-RESTful"><a href="#何謂-RESTful" class="headerlink" title="何謂 RESTful?"></a>何謂 RESTful?</h2><p>簡單來說，就是把每個網址當做資源（Resource）來看待，對同一個資源做不同的動作（HTTP Verb）會得到不同的結果。<br>符合 REST 概念設計的網址，又稱之 RESTful Route。</p>
+<br>
+
+<ul>
+<li><p>REST 全名</p>
+<ul>
+<li>Resource : 資源</li>
+<li>Representational : JSON, XML, YAML..</li>
+<li>State Transfer : 狀態傳輸，透過 HTTP 動詞實現</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>API 範例</p>
+<ul>
+<li>非 RESTful 的 API 可能長這樣：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/api/get_file/ ( 得到檔案 )</span><br><span class="line">/api/upload_file/ ( 新增檔案 )</span><br><span class="line">/api/update_file/ ( 更新檔案 )</span><br><span class="line">/api/delete_file/ ( 刪除檔案 )</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>RESTful API ：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/api/files/ ( GET -&gt; 得到檔案 )</span><br><span class="line">/api/files/ ( POST -&gt; 新增檔案 )</span><br><span class="line">/api/files/ ( PUT -&gt; 更新檔案)</span><br><span class="line">/api/files/ ( DELETE -&gt; 刪除檔案 )</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<br>
+
+<h3 id="RESTful-Triangle"><a href="#RESTful-Triangle" class="headerlink" title="RESTful Triangle"></a>RESTful Triangle</h3><p><img src="https://image.slidesharecdn.com/asitrest-150317020843-conversion-gate01/95/learn-rest-api-at-asit-6-638.jpg?cb=1426576159" alt="相關圖片"></p>
+<ol>
+<li>Nouns 名詞：定義網址的 URL，每個資源僅有一個唯一的識別位置，就像家的住址。</li>
+<li>Verbs 動詞：描述了對 Nouns 名詞 (資源 URL) 的操作動作，在 HTTP 1.1 的實作就是 HTTP Method。</li>
+<li>Content Types 資源呈現方式：比如取得某一個 URL 文章的 HTML 格式、或者 XML 格式，同樣的 URL 資源可以有不同型態的表現方式。</li>
+</ol>
+<p>建議在設計 API 規格時，同時思考上述的設計原則，好讓 API 設計更接近 REST 精神。</p>
+<br>
+
+<hr>
+<br>
+
+<h2 id="RESTful-API-設計要點"><a href="#RESTful-API-設計要點" class="headerlink" title="RESTful API 設計要點"></a>RESTful API 設計要點</h2><br>
+
+<h3 id="HTTP-動詞"><a href="#HTTP-動詞" class="headerlink" title="HTTP 動詞"></a>HTTP 動詞</h3><p>在<em>HTTP*通訊協定中制定了九種動詞</em>(Verbs)<em>來跟伺服器溝通，分別是</em>HEAD*、_GET_、_POST_、_PUT_、_PATCH_、_DELETE_、_TRACE_、_OPTIONS_、_CONNECT_。</p>
+<ul>
+<li>常用的 HTTP method：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">HTTP</th>
+<th>Method Idempotent</th>
+<th>Safe</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">GET（讀取資源）</td>
+<td>yes</td>
+<td>yes</td>
+</tr>
+<tr>
+<td align="left">HEAD（類似 GET，但只回傳 HTTP header）</td>
+<td>yes</td>
+<td>yes</td>
+</tr>
+<tr>
+<td align="left">PUT （替換資源）</td>
+<td>yes</td>
+<td>no</td>
+</tr>
+<tr>
+<td align="left">POST（新增資源）</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td align="left">DELETE（刪除資源）</td>
+<td>yes</td>
+<td>no</td>
+</tr>
+<tr>
+<td align="left">PATCH（更新資源部份內容）</td>
+<td>no</td>
+<td>no</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>Safe / Idempotent</p>
+<ul>
+<li><p>「safe」是指該操作不會改變伺服器端的資源狀態（而且結果可以被 cache）</p>
+</li>
+<li><p>「idempotent」是指該操作不管做 1 遍或做 n 遍，都會得到同樣的資源狀態結果（但不一定得到同樣的回傳值，例如第 2 次 DELETE 請求可能回傳 404），因此 client 端可以放心 retry。</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>PUT、POST 和 PATCH 容易混淆，補充說明如下：</p>
+<ol>
+<li><strong>PUT</strong>通常是用來替換單一資源或資源集合 (resource collection) 的內容。</li>
+<li><strong>POST</strong>除了用來新增資源，也作為 catch-all 用途，例如用在 utility API。（Utility API 是不同於一般資源讀寫操作的要求類型，例如檢查某個促銷活動碼是否有效。）</li>
+<li><strong>PATCH</strong>用來更新資源部份內容。前幾年有人會用 POST 代替 PATCH，現在應該沒這必要了；建議除非 infrastructure 有限制，否則直接用 PATCH 即可。</li>
+</ol>
+</li>
+</ul>
+<br>
+
+<h3 id="URI-名詞"><a href="#URI-名詞" class="headerlink" title="URI 名詞"></a>URI 名詞</h3><p>相對於 HTTP 動詞，URI 就是名詞了。URI 由 prefix + API endpoint 組成。Prefix 的部份可有可無，例如<code>/api</code>或<code>/api/v1</code>。API endpoint 的設計，幾個重要原則如下：</p>
+<ul>
+<li>一般資源用複數名詞，例如 <code>/books</code> 或 <code>/books/123</code><ul>
+<li>有些人認為用單數比較好，因為<code>/book/123</code>看似比<code>/books/123</code>合理；但想想檔案系統的目錄命名（例如<code>/Users</code>或<code>/Documents</code>），其實用複數也沒問題。複數可以保持 API endpoint 的一致性，所以一般資源建議用複數。</li>
+</ul>
+</li>
+<li>唯一資源（亦即對 client 而言只有一份的資源）用<strong>單數名詞</strong>。例如<a href="https://developer.github.com/v3/activity/watching/#list-repositories-being-watched" target="_blank" rel="noopener">GitHub watching API</a>中的<code>GET /user/subscriptions</code>，其中<code>user</code>是指目前驗證的使用者，所以用單數。</li>
+<li>資源的層級架構，可以適當反應在 API endpoint 設計上，例如<code>/books/123/chapters/2</code>。</li>
+<li>Utility API 與 resource API 性質不同，它的 endpoint 設計只要合理即可，例如<code>/search?q={keywords}</code>。</li>
+<li>建議 URI components 都用<strong>小寫</strong>，兩個字之間用減號<code>-</code>或底線<code>_</code>隔開皆可，但應保持一致。（我個人偏好用<code>-</code>）</li>
+</ul>
+<br>
+
+<h3 id="HTTP-回傳狀態碼"><a href="#HTTP-回傳狀態碼" class="headerlink" title="HTTP 回傳狀態碼"></a>HTTP 回傳狀態碼</h3><p>API 回傳的結果，應使用適當的 HTTP 狀態碼，所以 API 設計者必須了解它們。以下是一些常用的狀態碼，完整列表請參考<a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes" target="_blank" rel="noopener">Wikipedia</a>。</p>
+<ul>
+<li><p>2xx: 成功</p>
+<ul>
+<li>200 OK: 通用狀態碼</li>
+<li>201 Created: 資源新增成功</li>
+<li>202 Accepted: 請求已接受，但尚在處理中</li>
+<li>204 No Content: 請求成功，但未回傳任何內容</li>
+</ul>
+</li>
+<li><p>3xx: 重新導向</p>
+<ul>
+<li>301 Moved Permanently: 資源已移至它處</li>
+<li>303 See Other: 回傳的內容可在它處取得（例如在用戶端發送了一個 POST 請求之後）</li>
+<li>304 Not Modified: 請求的資源並未修改（通常是用戶端發送了帶有 If-Modified-Since 或 If-None-Match 表頭的請求）</li>
+</ul>
+</li>
+<li><p>4xx: 用戶端錯誤</p>
+<p>（用戶端不應 retry 原始請求）</p>
+<ul>
+<li>400 Bad Request: 通用狀態碼</li>
+<li>401 Unauthorized: 用戶端尚未驗證*</li>
+<li>403 Forbidden: 用戶端被禁止此請求*</li>
+<li>404 Not Found: 請求的資源不存在</li>
+<li>405 Method Not Allowed: 不支援請求的 HTTP 方法</li>
+<li>406 Not Acceptable: 不支援請求所<strong>要求</strong>的內容類型*（Accept 表頭）</li>
+<li>415 Unsupported Media Type: 不支援請求所<strong>用</strong>的內容類型*（Content-Type 表頭）</li>
+</ul>
+</li>
+<li><p>5xx: 伺服器錯誤</p>
+<p>（用戶端可合理 retry）</p>
+<ul>
+<li>500 Internal Server Error: 工程師要找 bug 了</li>
+<li>501 Not Implemented: 用戶端的請求目前未支援（也就是將來有可能支援）</li>
+<li>502 Bad Gateway: 上游的伺服器未回傳正確結果，一般是 gateway 或 proxy server 才會回傳此狀態碼</li>
+<li>503 Service Unavailable: 暫停服務（也就是過不久就會恢復服務 ── 如果一切順利的話）</li>
+<li>504 Gateway Timeout: 上游的伺服器逾時，一般是 gateway 或 proxy server 才會回傳此狀態碼</li>
+</ul>
+</li>
+</ul>
+<p>* 關於幾個容易混淆的狀態碼，補充說明如下：</p>
+<ol>
+<li>401、403: 401 是指用戶端尚未驗證，也就是 unauthenticated（HTTP spec 裡用 unauthorized 有些誤導）；403 是指用戶端目前的身份不被允許此項請求（通常是用戶端已驗證過了），或是所有使用者都不被允許此項請求。</li>
+<li>406、415: 406 是指用戶端要求「回傳」的 Content-Type（也就是用戶端在 Accept 表頭裡所要求的），伺服器不支援；415 是指用戶端送出的「請求」，其 Content-Type（也就是用戶端 HTTP request body 的內容類型），伺服器不支援。</li>
+</ol>
+<p>另外要注意，這些回傳的狀態碼，是代表 API 這一層的執行狀態，而<strong>不是商業邏輯</strong>這一層的狀態。例如當<code>/search?q=xyz</code>搜尋結果是空的，API 結果仍應回傳 200，而非 404；因為從 API 角度來看，<code>/search</code>這個「資源」存在，而且 API 執行成功。</p>
+<br>
+
+<h3 id="HTTP-Header"><a href="#HTTP-Header" class="headerlink" title="HTTP Header"></a>HTTP Header</h3><p>用戶端送出 API 請求時，可能會帶一些 HTTP header，例如：</p>
+<ul>
+<li>Accept: 能夠接受的回應內容類型 (Content-Type)，屬於內容協商的一環</li>
+<li>Authorization: 認證資訊</li>
+</ul>
+<p>至於 API 回傳結果的 HTTP header，沒甚麼特別之處，按照一般原則處理即可（例如 Content-Type、Content-Length、ETag、Cache-Control…）。</p>
+<br>
+
+<h3 id="HTTP-Body-JSON-或-XML-格式"><a href="#HTTP-Body-JSON-或-XML-格式" class="headerlink" title="HTTP Body: JSON 或 XML 格式"></a>HTTP Body: JSON 或 XML 格式</h3><p>現在 JSON 已被普遍支援，加上 JSON 處理上較簡潔，所以越來越多人採用 JSON 作為 API 的 HTTP body 格式。但要採用 JSON 或 XML（或同時支援兩種格式），仍應視專案的實際需求而定。</p>
+<br>
+
+<h3 id="其它原則"><a href="#其它原則" class="headerlink" title="其它原則"></a>其它原則</h3><ol>
+<li>與 HTTP 一樣，API 應該是 stateless，也就是一項工作單元不應由二個或二個以上 API 組成。（這也引申出一個有趣的問題：REST API 如何支援 transaction？這個問題超出本篇文章的範圍，以後有機會再談。）</li>
+<li>REST API 所呈現的資源，是從應用面及 client 角度來思考，並不需要和後端的資源儲存形式（例如資料庫 schema）維持一對一的關係。</li>
+<li><a href="https://en.wikipedia.org/wiki/Representational_state_transfer#Uniform_interface" target="_blank" rel="noopener">HATEOAS</a> (Hypermedia as the engine of application state) 雖然是 REST 原始定義裡的一環，但我認為不一定需要。</li>
+<li>Query parameter 的部份，只要風格保持一致即可，REST 對此並無特殊規範。</li>
+</ol>
+<br>
+
+<hr>
+<br>
+
+<h2 id="RESTful-架構的實踐"><a href="#RESTful-架構的實踐" class="headerlink" title="RESTful 架構的實踐"></a>RESTful 架構的實踐</h2><br>
+
+<h3 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h3><p>HTTP 1.1 本身就是 REST 架構的實踐，我們可以遵循它定義好的規格，例如：</p>
+<ul>
+<li>透過 HTTP Status Code 回傳 API 執行結果</li>
+<li>利用 HTTP Accept Header 告知 Server 指定回傳的資料格式 Content-type，JSON 可以送出 application/json、XML 可以送出 application/xml 等等</li>
+<li>透過 POST 新增資料到 Server，執行成功後回傳 201 Status Code 並且透過 Location Header 告知新資源的 URL</li>
+</ul>
+<br>
+
+<h3 id="優缺點"><a href="#優缺點" class="headerlink" title="優缺點"></a>優缺點</h3><ul>
+<li>優點：<ul>
+<li>網址更直觀，不同開發人員都遵照慣例設計網址，易於維護、擴展。</li>
+<li>REST 設計將每一個實體定義獨立唯一的 URL 位置，物件資源相互的依賴性降低，API 解耦特性更好，容易彈性組合應付多數業務邏輯。</li>
+</ul>
+</li>
+<li>缺點<ul>
+<li>安全性問題，假設使用者知道 <code>/member/1</code> 是自己的會員資料，他就可以嘗試從 <code>/member/100</code> 得到其他用戶的資料，須對使用者做身份驗證。</li>
+<li>資源相依結構鬆散問題，假設想要取得文章與作者資訊，就必須先 <code>GET /文章/{ID}</code> ，然後再透過取回的文章物件中的 Author 欄位再一次呼叫 <code>GET /使用者/{NAME}</code> 取得作者資訊，較為麻煩。</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<hr>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://railsbook.tw/chapters/11-routes.html#restful-routes" target="_blank" rel="noopener">https://railsbook.tw/chapters/11-routes.html#restful-routes</a></p>
+<p><a href="https://ihower.tw/rails/restful.html" target="_blank" rel="noopener">https://ihower.tw/rails/restful.html</a></p>
+<p><a href="https://tw.twincl.com/programming/*641y" target="_blank" rel="noopener">https://tw.twincl.com/programming/*641y</a></p>
+<p><a href="https://github.com/twtrubiks/django-rest-framework-tutorial/tree/master/RESTful-API-Tutorial" target="_blank" rel="noopener">https://github.com/twtrubiks/django-rest-framework-tutorial/tree/master/RESTful-API-Tutorial</a></p>
+<p><a href="https://www.webguide.nat.gov.tw/News_Content.aspx?n=531&amp;s=2918" target="_blank" rel="noopener">https://www.webguide.nat.gov.tw/News_Content.aspx?n=531&amp;s=2918</a></p>
+
+            
+
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">標籤</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/tags/Rails/">Rails</a> <a class="tag tag--primary tag--small t-link" href="/tags/Web/">Web</a> <a class="tag tag--primary tag--small t-link" href="/tags/學習日誌/">學習日誌</a>
+
+            </div>
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a
+                        class="post-action-btn btn btn--disabled"
+                        aria-hidden="true"
+                    >
+                        
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                    </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/10/25/ruby_self/"
+                    data-tooltip="Ruby Self"
+                    aria-label="下一篇: Ruby Self"
+                >
+                    
+                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a
+                class="post-action-btn btn btn--default btn-open-shareoptions"
+                href="#btn-open-shareoptions"
+                aria-label="Share this post"
+            >
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/27/restful_api/"
+                    title="分享到 Facebook"
+                    aria-label="分享到 Facebook"
+                >
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/27/restful_api/"
+                    title="分享到 Twitter"
+                    aria-label="分享到 Twitter"
+                >
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/10/27/restful_api/"
+                    title="分享到 Google+"
+                    aria-label="分享到 Google+"
+                >
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Back to top">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2019 Chai Wei-Li. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a
+                        class="post-action-btn btn btn--disabled"
+                        aria-hidden="true"
+                    >
+                        
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                    </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/10/25/ruby_self/"
+                    data-tooltip="Ruby Self"
+                    aria-label="下一篇: Ruby Self"
+                >
+                    
+                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a
+                class="post-action-btn btn btn--default btn-open-shareoptions"
+                href="#btn-open-shareoptions"
+                aria-label="Share this post"
+            >
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/27/restful_api/"
+                    title="分享到 Facebook"
+                    aria-label="分享到 Facebook"
+                >
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/27/restful_api/"
+                    title="分享到 Twitter"
+                    aria-label="分享到 Twitter"
+                >
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/10/27/restful_api/"
+                    title="分享到 Google+"
+                    aria-label="分享到 Google+"
+                >
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Back to top">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                
+    <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+        <i id="btn-close-shareoptions" class="fa fa-times"></i>
+        <ul class="share-options">
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/27/restful_api/"
+                        aria-label="分享到 Facebook"
+                    >
+                        <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
+                    </a>
+                </li>
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/27/restful_api/"
+                        aria-label="分享到 Twitter"
+                    >
+                        <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
+                    </a>
+                </li>
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://plus.google.com/share?url=https://chaichai.site/2019/10/27/restful_api/"
+                        aria-label="分享到 Google+"
+                    >
+                        <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
+                    </a>
+                </li>
+            
+        </ul>
+    </div>
+
+
+            
+        </div>
+        
+
+
+    
+        
+    
+
+<div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-times"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/chai2.jpg" alt="作者的圖片"/>
+        
+            <h4 id="about-card-name">Chai Wei-Li</h4>
+        
+            <div id="about-card-bio"><p>A Laguageholic</br>Recently addicted to programing language.</p></div>
+        
+        
+            <div id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                <p>Web Developer</p>
+
+            </div>
+        
+        
+            <div id="about-card-location">
+                <i class="fa fa-map-marker-alt"></i>
+                <br/>
+                Taipei
+            </div>
+        
+    </div>
+</div>
+
+        
+            <div id="algolia-search-modal" class="modal-container">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="close-button"><i class="fa fa-times"></i></span>
+            <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+                <span class="searchby-algolia-text text-color-light text-small">by</span>
+                <img class="searchby-algolia-logo" src="/assets/images/logo-algolia-nebula-blue-full.svg">
+            </a>
+            <i class="search-icon fa fa-search"></i>
+            <form id="algolia-search-form">
+                <input type="text" id="algolia-search-input" name="search"
+                    class="form-control input--large search-input" placeholder="Search "
+                    />
+            </form>
+        </div>
+        <div class="modal-body">
+            <div class="no-result text-color-light text-center">沒有找到文章</div>
+            <div class="results">
+                
+                <div class="media">
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/01/welcome/"
+                            aria-label=": Welcome"
+                        >
+                            <h3 class="media-heading">Welcome</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月1日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>Hi 我是柴柴，目前學習程式大約三個月，連 Junior 都還不敢自稱 XD<br>由於我是個不折不口的語言控，不論中文、英文、日文，還是程式語言，只要是關於語言的話題都歡迎與我交流～<br>為了整理自己所學的概念，這裡放了我的學習日誌，希望可以對自己和找尋資料的人有一些幫助，如果有寫錯的地方還請不吝於指教。</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/23/ruby_symbol/"
+                            aria-label=": Ruby Symbol"
+                        >
+                            <h3 class="media-heading">Ruby Symbol</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月23日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/24/ducktyping/"
+                            aria-label=": Duck Typing"
+                        >
+                            <h3 class="media-heading">Duck Typing</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月24日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/25/ruby_self/"
+                            aria-label=": Ruby Self"
+                        >
+                            <h3 class="media-heading">Ruby Self</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月25日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>學 Ruby 時，時常在不同的方法中看到某個神秘變數 self ，self 到底是誰呢？</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/27/restful_api/"
+                            aria-label=": RESTful API"
+                        >
+                            <h3 class="media-heading">RESTful API</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月27日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>為了理解目前 API 設計的主流，試著整理了網路上的解說文章，作為學習筆記。</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+            </div>
+        </div>
+        <div class="modal-footer">
+            <p class="results-count text-medium"
+                data-message-zero="沒有找到文章"
+                data-message-one="找到 1 篇文章"
+                data-message-other="找到 {n} 篇文章">
+                找到 5 篇文章
+            </p>
+        </div>
+    </div>
+</div>
+
+        
+        
+<div id="cover" style="background-image:url('/assets/images/c2.jpeg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-svtwgfryapukh90stjxmqmwdnkuvnvbtxrp4mjtwg8hlzz4imddb8f0ll3mm.min.js"></script>
+<!--SCRIPTS END-->
+
+
+    
+
+
+
+    <script src="/assets/js/moment-with-locales.js"></script>
+    <script src="/assets/js/algoliasearch.js"></script>
+    <script>
+      var algoliaClient = algoliasearch('97U3I10513', '154ffe41ad15f749f65b714f6eee9128');
+      var algoliaIndex = algoliaClient.initIndex('Chai');
+    </script>
+
+
+    </body>
+</html>
