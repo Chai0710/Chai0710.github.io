@@ -41,7 +41,7 @@
     title="RSS"
     href="/atom.xml"
   />
-   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」\n\n\n\n簡單來說，假設有一隻鳥，他會游泳、會叫，而我們定義的鴨子需要會游泳、會叫，就可以說那隻鳥是鴨子，即使它可能是一隻企鵝。\n我們並不在乎他是否繼承自鴨子的血緣，到底是不是鴨子，只在乎他的「行為」。\n比如在 Ruby 等程式語言中，有中括號 [ ] 取值的方法，除了陣列以外，字串、Hash 等物件都可以使用，甚至是在自訂的 class 中寫入中括號的方法，不管它的型別是什麼，只要具備中括號的方法，就可以使用。\n\n\n以下的範例體現了鴨子測試，只要有 quack, feathers 方法，對 in_the_forest 函式而言，該物件就是一個鴨子。\n123456789101112131415161718192021222324252627282930313233343536373839404142class Duck    def quack        puts \"這鴨子正在嘎嘎叫\"    end    def feathers        puts \"這鴨子擁有白色和灰色的羽毛\"    endendclass Person    def quack        puts \"這人正在模仿鴨子\"    end    def feathers        puts \"這人在地上拿起1根羽毛然後给其他人看\"    endenddef in_the_forest(duck)    duck.quack    duck.feathersenddef game    duck = Duck.new    person = Person.new    in_the_forest(duck)    in_the_forest(person)endgame# 這鴨子正在嘎嘎叫# 這鴨子擁有白色和灰色的羽毛# 這人正在模仿鴨子# 這人在地上拿起1根羽毛然後给其他人看\n\n\n\n只是，由於鴨子型別所帶來的方便與靈活度，也可能早成難以檢測的錯誤，開發者需注意不同類別中相同方法的可能使用。\n\n參考資料https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B\n","dateCreated":"2019-10-24T00:00:00+08:00","dateModified":"2019-10-30T12:15:09+08:00","datePublished":"2019-10-24T00:00:00+08:00","description":"「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」","headline":"Duck Typing","image":["https://lh3.googleusercontent.com/s2dsigYpyfhh__Eh4TbXD2rCxoG2mGLiV2pI3qJsd-_y4Ztny8YF9BGMXmeyXzFHGacfUwKZEftasMYAHIZkSHTMKmYaKYPGkh9hWQRRb4nhp-X0XZC6P2oB5s_yykmfGw6S8k0Kxw=w2400","https://lh3.googleusercontent.com/s2dsigYpyfhh__Eh4TbXD2rCxoG2mGLiV2pI3qJsd-_y4Ztny8YF9BGMXmeyXzFHGacfUwKZEftasMYAHIZkSHTMKmYaKYPGkh9hWQRRb4nhp-X0XZC6P2oB5s_yykmfGw6S8k0Kxw=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/10/24/ducktyping/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/10/24/ducktyping/","keywords":"Ruby, Rails, OO, 學習日誌","thumbnailUrl":"https://lh3.googleusercontent.com/s2dsigYpyfhh__Eh4TbXD2rCxoG2mGLiV2pI3qJsd-_y4Ztny8YF9BGMXmeyXzFHGacfUwKZEftasMYAHIZkSHTMKmYaKYPGkh9hWQRRb4nhp-X0XZC6P2oB5s_yykmfGw6S8k0Kxw=w2400"}</script> <meta name="description" content="「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」">
+   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」\n\n\n\n簡單來說，假設有一隻鳥，他會游泳、會叫，而我們定義的鴨子需要會游泳、會叫，就可以說那隻鳥是鴨子，即使它可能是一隻企鵝。\n我們並不在乎他是否繼承自鴨子的血緣，到底是不是鴨子，只在乎他的「行為」。\n比如在 Ruby 等程式語言中，有中括號 [ ] 取值的方法，除了陣列以外，字串、Hash 等物件都可以使用，甚至是在自訂的 class 中寫入中括號的方法，不管它的型別是什麼，只要具備中括號的方法，就可以使用。\n\n\n以下的範例體現了鴨子測試，只要有 quack, feathers 方法，對 in_the_forest 函式而言，該物件就是一個鴨子。\n123456789101112131415161718192021222324252627282930313233343536373839404142class Duck    def quack        puts \"這鴨子正在嘎嘎叫\"    end    def feathers        puts \"這鴨子擁有白色和灰色的羽毛\"    endendclass Person    def quack        puts \"這人正在模仿鴨子\"    end    def feathers        puts \"這人在地上拿起1根羽毛然後给其他人看\"    endenddef in_the_forest(duck)    duck.quack    duck.feathersenddef game    duck = Duck.new    person = Person.new    in_the_forest(duck)    in_the_forest(person)endgame# 這鴨子正在嘎嘎叫# 這鴨子擁有白色和灰色的羽毛# 這人正在模仿鴨子# 這人在地上拿起1根羽毛然後给其他人看\n\n\n\n只是，由於鴨子型別所帶來的方便與靈活度，也可能早成難以檢測的錯誤，開發者需注意不同類別中相同方法的可能使用。\n\n參考資料https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B\n","dateCreated":"2019-10-24T00:00:00+08:00","dateModified":"2019-10-31T21:21:09+08:00","datePublished":"2019-10-24T00:00:00+08:00","description":"「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」","headline":"Duck Typing","image":["https://lh3.googleusercontent.com/s2dsigYpyfhh__Eh4TbXD2rCxoG2mGLiV2pI3qJsd-_y4Ztny8YF9BGMXmeyXzFHGacfUwKZEftasMYAHIZkSHTMKmYaKYPGkh9hWQRRb4nhp-X0XZC6P2oB5s_yykmfGw6S8k0Kxw=w2400","https://lh3.googleusercontent.com/s2dsigYpyfhh__Eh4TbXD2rCxoG2mGLiV2pI3qJsd-_y4Ztny8YF9BGMXmeyXzFHGacfUwKZEftasMYAHIZkSHTMKmYaKYPGkh9hWQRRb4nhp-X0XZC6P2oB5s_yykmfGw6S8k0Kxw=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/10/24/ducktyping/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://www.linkedin.com/in/weili-chai-619570128/","wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/10/24/ducktyping/","keywords":"Ruby, Rails, OO, 學習日誌","thumbnailUrl":"https://lh3.googleusercontent.com/s2dsigYpyfhh__Eh4TbXD2rCxoG2mGLiV2pI3qJsd-_y4Ztny8YF9BGMXmeyXzFHGacfUwKZEftasMYAHIZkSHTMKmYaKYPGkh9hWQRRb4nhp-X0XZC6P2oB5s_yykmfGw6S8k0Kxw=w2400"}</script> <meta name="description" content="「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」">
 <meta name="keywords" content="Ruby,Rails,OO,學習日誌">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Duck Typing">
@@ -49,7 +49,7 @@
 <meta property="og:site_name" content="Chai&#39;s Blog">
 <meta property="og:description" content="「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:updated_time" content="2019-10-30T04:15:09.329Z">
+<meta property="og:updated_time" content="2019-10-31T13:21:09.560Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Duck Typing">
 <meta name="twitter:description" content="「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」">     
@@ -285,17 +285,7 @@
              style="background-image:url('https://lh3.googleusercontent.com/s2dsigYpyfhh__Eh4TbXD2rCxoG2mGLiV2pI3qJsd-_y4Ztny8YF9BGMXmeyXzFHGacfUwKZEftasMYAHIZkSHTMKmYaKYPGkh9hWQRRb4nhp-X0XZC6P2oB5s_yykmfGw6S8k0Kxw=w2400');"
              data-behavior="4">
             
-        </div>
-
-            <div id="main" data-behavior="4"
-                 class="hasCover
-                        hasCoverMetaOut
-                        ">
-                
-<article class="post">
-    
-    
-        <div class="post-header main-content-wrap text-center">
+                <div class="post-header main-content-wrap text-center">
     
         <h1 class="post-title">
             Duck Typing
@@ -320,6 +310,16 @@
     
 </div>
 
+            
+        </div>
+
+            <div id="main" data-behavior="4"
+                 class="hasCover
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
     
     <div class="post-content markdown">
         <div class="main-content-wrap">
