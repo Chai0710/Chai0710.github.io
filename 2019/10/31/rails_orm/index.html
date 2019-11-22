@@ -1,0 +1,1186 @@
+
+<!DOCTYPE html>
+<html lang="zh-tw">
+    
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=UA-151110084-1"
+  ></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+
+    gtag("config", "UA-151110084-1");
+  </script>
+
+  <meta
+    name="google-site-verification"
+    content="0kcfPxt_TX47WHF1JZrdPwH938-fLEnIQuxxM-md_sU"
+  />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Chai&#39;s Blog" />
+  <title>Rails ORM - Chai&#39;s Blog</title>
+  <meta name="author" content="Chai Wei-Li" />
+  
+  <meta name="keywords" content="Ruby on Rails,Programmer," />
+   
+  <link
+    rel="icon"
+    href="https://chaichai.site/assets/images/footprint.jpg"
+  />
+   
+  <link
+    rel="alternate"
+    type="application/atom+xml"
+    title="RSS"
+    href="/atom.xml"
+  />
+   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"ORM 之 CRUD / Scope / Validates / Callback\n\n\n\n\n\n\nORM = Object Relational Mapping\n\nActive Record ＝ 把資料做成物件Active Record 是一種 ORM 框架物件 = 欄位 + 基本操作 + 商業邏輯\n\nModel = 依照 Active Record 模式設計的產物可以翻譯成宅宅語言的：Model = Active_record.new\n\n\n\n\nORM CRUD\n\nCreate12345book = Product.new(name: 'Ruby book', price: 350)book.save # 到這⼀步才存到資料庫裡# 建立並同時存到 products 表格裡:Product.create(name: 'Ruby book', price:350)\n\n\nnew 方法會建立一筆資料，但還不會存到資料庫裡。\ncreate 失敗會 rollback ，可以用 if 判斷\ncreate! 失敗會 error，需要用 begin rescue 抓例外\n\n\n\nRead123456789101112Product.firstProduct.lastProduct.find(1) # 只能用 id 找，找不到會例外Product.find_by(id: 1) # 能用 name 等其他東西找，找不到會 nilProduct.find_by_sql(\"select \\* from products where id = 1\")Product.find_each do | product |# 預設抓 1000 筆endOwner.find_by_name_and_email_and_id # 還有這種神奇的寫法，但效能較差Owner.find_by(name:'kk', email:'ddd') # 效能比較好\n\n\n還有許多讀取方式\n\n1234567891011121314151617Product.all # 知道查什麼時就不用放 all (不需要每次都放)Product.select('name')Product.where(name: 'Ruby') # 找到全部 name 的陣列Product.find_by(name: 'Ruby') # 只會找到一筆Product.order('id DESC')Product.order(id: :desc)Product.limit(5)Owner.select(:name).where(name:'o1') # 可以用組合技，省記憶體空間Product.where('price &lt; 10') # 查詢大於小於只能用字串Owner.where(name:'ruby').first# 直接 limit 1 筆，較省記憶體空間all = Owner.where(name:'ruby')all.first# 把全部資料都抓出來存到記憶體，再抓第一個，非常占空間\n\n\n好用的方法們（不要傻傻的用 ORM 抓出來轉迴圈再來計算）\ncount\naverage\nsum\nmaximum 與 minimum\n\n\n\n\n\nUpdate12345678p1 = Product.find_by(id: 1) # 儲存p1.name = 'Ruby book' p1.save # 更新p1.update(name: 'Ruby book')p1.update_attributes(name: 'Ruby book') # update 兩者相同，這行可以不用（太長）Product.update_all(name: 'Ruby book', price: 250)# 全部更新(請⼩心使⽤!)\n\n\n其他方法\n\n12345# increment / decrement 不會自己 save 但 increment! 會直接存my_order = Order.firstmy_order.increment(:quantity) # quantity 欄位的值 + 1my_order.toggle(:is_online) # 把原本的 true/false 值對調\n\n\n\nDelete12345p1 = Product.find_by(id: 1)p1.destroy # 會走 callback 流程，過程可以做檢查p1.delete # 直接刪除Product.delete(1) # 刪除編號 1 號的商品Product.destroy_all(\"price &lt; 10\") # 刪除所有低於 10 元的商品\n\n\n\n\nORM 其他\n\nScope\n把一群條件整理成一個\nScope 簡化使用時的邏輯\n減少在 Controller 裡寫一堆 Where 組合\n用起來跟類別方法一樣\n\n123456789101112# model 檔class Product &lt; ApplicationRecorddef self.cheapwhere('price &lt; 10')end# 上下兩者相同scope :cheap, -&gt;&#123;where('price &lt; 15')&#125;end# 同名方法的話後面會蓋掉前面 結果為 price &lt; 15\n\n\ndefault_scope 可幫所有的查詢預設套用\n\n12345678class Product &lt; ApplicationRecord  default_scope &#123; order('id DESC') &#125;  scope :available, -&gt; &#123; where(is_available: true) &#125;  default_scope &#123; where(deleted: false) &#125;# 應用場景：假刪除/軟刪除 讓被刪除資料不顯示end\n\n\nQ: scope 跟類別方法有什麼不一樣?A: 一樣Q: 什麼時候該用什麼寫法?A: 只有一行時寫 scope，多行就寫類別方法\n\n\n\n\nValidates\n方法們：\npresence\nformat\nuniqueness\nnumericality\nlength\ncondition\n\n\n\n1234567891011121314151617181920212223# 自訂驗證class Product &lt; ApplicationRecord  validate :name_validator    private    def name_validator      unless name.starts_with? 'Ruby'        errors[:name] &lt;&lt; 'must begin with Ruby'       end    endendclass BeginWithRubyValidator &lt; ActiveModel::EachValidator  def validate_each(record, attribute, value)    unless value.starts_with? 'Ruby'      record.errors[attribute] &lt;&lt; 'must begin with Ruby'    end  endendclass Product &lt; ApplicationRecord  validates :name, presence: true, begin_with_ruby: trueend\n\n\n自訂驗證寫在 lib 裡更好\n資料驗證過程：12345678910111213p1 = Product.new # 忘了寫產品名稱，但還沒寫入資料庫p1.errors.any? # 看看有沒錯誤...=&gt; false # 這時候還沒發⽣生錯誤p1.validate # 開始進⾏行行驗證(還不需要存檔喔)=&gt; false # 得到 false 表⽰示沒有驗證成功p1.errors.any? # 看看有沒有錯誤...=&gt; true # 這時候就有錯誤內容了了p1.errors.full_messages=&gt; [\"Title can't be blank\"] # 使⽤ full_messages 可把資料印出來\n\n\n\n\nQ: 硬是要繞過驗證可以嗎?A: 可以，繞過驗證的方式如下（但不要這麼做啦）cc.save(validates: false)Q: 只要有驗證就可以保證資料正確嗎?A: 不，驗證是綁在 model ，另一個系統若直接寫進資料表就不行\n\n\n\nCallback\n資料存檔的流程會經過以下流程，可在這些流程執行的時候對資料做一些事情\n1save &gt; valid &gt; before_validation &gt; validate &gt; after_validate &gt; before_save &gt; before_create &gt; create &gt; after_create &gt; after_save &gt; after_commit\n\n在資料存檔前對密碼加密\n12345678class User &lt; ApplicationRecord  before_save :encrypt_email  private  def encrypt_email    require 'digest'    self.email = Digest::MD5.hexdigest(email)  endend\n\n\n\n\nQ: 在範例中，如果改用 before_save 會造成什麼問題?A: 應該用 before_create ，加密只應該在建立時做，不應該每次更新都做Q: before_save 跟 before_create 有什麼差別?A: before_save 在新增 / 存檔時都會做，before_create 只有在新增時做\n\n","dateCreated":"2019-10-31T00:00:00+08:00","dateModified":"2019-10-31T21:20:41+08:00","datePublished":"2019-10-31T00:00:00+08:00","description":"ORM 之 CRUD / Scope / Validates / Callback","headline":"Rails ORM","image":["https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400","https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/10/31/rails_orm/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/10/31/rails_orm/","keywords":"Ruby, Rails, 程式筆記","thumbnailUrl":"https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"}</script> <meta name="description" content="ORM 之 CRUD / Scope / Validates / Callback">
+<meta name="keywords" content="Ruby,Rails,程式筆記">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Rails ORM">
+<meta property="og:url" content="https://chaichai.site/2019/10/31/rails_orm/index.html">
+<meta property="og:site_name" content="Chai&#39;s Blog">
+<meta property="og:description" content="ORM 之 CRUD / Scope / Validates / Callback">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:updated_time" content="2019-10-31T13:20:41.683Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Rails ORM">
+<meta name="twitter:description" content="ORM 之 CRUD / Scope / Validates / Callback">     
+  <meta
+    property="og:image"
+    content="https://chaichai.site/assets/images/chai2.jpg"
+  />
+   
+  <meta
+    property="og:image"
+    content="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"
+  />
+  <meta
+    class="swiftype"
+    name="image"
+    data-type="enum"
+    content="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"
+  />
+   
+  <meta
+    property="og:image"
+    content="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"
+  />
+  <meta
+    class="swiftype"
+    name="image"
+    data-type="enum"
+    content="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"
+  />
+   
+  <!--STYLES-->
+  <link rel="stylesheet" href="/assets/css/style-cfvtcukseptqvusuk7rzmd0l1apgmghnwq0qzcswk9li23zcutw2uurypnfc.min.css">
+  <!--STYLES END-->
+  
+    <link rel="stylesheet" href="/assets/css/gitalk.css">  
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a
+            class="header-title-link"
+            href="/ "
+            aria-label=""
+        >
+            Chai&#39;s Blog
+        </a>
+    </div>
+    
+        
+            <a
+                class="header-right-icon open-algolia-search"
+                href="#search"
+                aria-label="打開鏈接: /#search"
+            >
+        
+        
+            <i class="search fa-lg"></i>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+
+        
+    
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a
+                    href="/#about"
+                    aria-label="閱讀有關作者的更多信息"
+                >
+                    <img class="sidebar-profile-picture" src="/assets/images/chai2.jpg" alt="作者的圖片"/>
+                </a>
+                <h4 class="sidebar-profile-name">Chai Wei-Li</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>A Laguageholic</br>Recently addicted to programing language.</p></h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="首頁"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">首頁</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="分類"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">分類</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="標籤"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">標籤</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="所有文章"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">所有文章</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-algolia-search"
+                             href="#search"
+                            
+                            title="搜尋"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">搜尋</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="關於"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">關於</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/Chai0710" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fab fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/wownchai" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fab fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/in/weili-chai-619570128/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fab fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="mailto:wown0710@gmail.com" target="_blank" rel="noopener" title="Email">
+                    
+                        <i class="sidebar-button-icon fa fa-envelope" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Email</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="Atom"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Atom</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+        <div class="post-header-cover
+                    text-center
+                    post-header-cover--full"
+             style="background-image:url('https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400');"
+             data-behavior="4">
+            
+                <div class="post-header main-content-wrap text-center">
+    
+        <h1 class="post-title">
+            Rails ORM
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2019-10-31T00:00:00+08:00">
+	
+		    10月 31, 2019
+    	
+    </time>
+    
+        <span>分類 </span>
+        
+    <a class="category-link" href="/categories/程式筆記/">程式筆記</a>
+
+
+    
+</div>
+
+    
+</div>
+
+            
+        </div>
+
+            <div id="main" data-behavior="4"
+                 class="hasCover
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <p>ORM 之 CRUD / Scope / Validates / Callback</p>
+<a id="more"></a>
+
+<hr>
+<br>
+
+<ul>
+<li><p>ORM = Object Relational Mapping</p>
+</li>
+<li><p>Active Record ＝ 把資料做成物件<br>Active Record 是一種 ORM 框架<br>物件 = 欄位 + 基本操作 + 商業邏輯</p>
+</li>
+<li><p>Model = 依照 Active Record 模式設計的產物<br>可以翻譯成宅宅語言的：<br>Model = Active_record.new</p>
+<br>
+</li>
+</ul>
+<hr>
+<h1 id="ORM-CRUD"><a href="#ORM-CRUD" class="headerlink" title="ORM CRUD"></a>ORM CRUD</h1><br>
+
+<h2 id="Create"><a href="#Create" class="headerlink" title="Create"></a>Create</h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">book = Product.new(<span class="symbol">name:</span> <span class="string">'Ruby book'</span>, <span class="symbol">price:</span> <span class="number">350</span>)</span><br><span class="line">book.save <span class="comment"># 到這⼀步才存到資料庫裡</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立並同時存到 products 表格裡:</span></span><br><span class="line">Product.create(<span class="symbol">name:</span> <span class="string">'Ruby book'</span>, <span class="symbol">price:</span><span class="number">350</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>new 方法會建立一筆資料，但還不會存到資料庫裡。</li>
+<li>create 失敗會 rollback ，可以用 if 判斷</li>
+<li>create! 失敗會 error，需要用 begin rescue 抓例外</li>
+</ul>
+<br>
+
+<h2 id="Read"><a href="#Read" class="headerlink" title="Read"></a>Read</h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Product.first</span><br><span class="line">Product.last</span><br><span class="line">Product.find(<span class="number">1</span>) <span class="comment"># 只能用 id 找，找不到會例外</span></span><br><span class="line">Product.find_by(<span class="symbol">id:</span> <span class="number">1</span>) <span class="comment"># 能用 name 等其他東西找，找不到會 nil</span></span><br><span class="line">Product.find_by_sql(<span class="string">"select \* from products where id = 1"</span>)</span><br><span class="line">Product.find_each <span class="keyword">do</span> <span class="params">| product |</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 預設抓 1000 筆</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">Owner.find_by_name_and_email_and_id <span class="comment"># 還有這種神奇的寫法，但效能較差</span></span><br><span class="line">Owner.find_by(<span class="symbol">name:</span><span class="string">'kk'</span>, <span class="symbol">email:</span><span class="string">'ddd'</span>) <span class="comment"># 效能比較好</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>還有許多讀取方式</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Product.all <span class="comment"># 知道查什麼時就不用放 all (不需要每次都放)</span></span><br><span class="line">Product.select(<span class="string">'name'</span>)</span><br><span class="line">Product.where(<span class="symbol">name:</span> <span class="string">'Ruby'</span>) <span class="comment"># 找到全部 name 的陣列</span></span><br><span class="line">Product.find_by(<span class="symbol">name:</span> <span class="string">'Ruby'</span>) <span class="comment"># 只會找到一筆</span></span><br><span class="line">Product.order(<span class="string">'id DESC'</span>)</span><br><span class="line">Product.order(<span class="symbol">id:</span> <span class="symbol">:desc</span>)</span><br><span class="line">Product.limit(<span class="number">5</span>)</span><br><span class="line">Owner.select(<span class="symbol">:name</span>).where(<span class="symbol">name:</span><span class="string">'o1'</span>) <span class="comment"># 可以用組合技，省記憶體空間</span></span><br><span class="line">Product.where(<span class="string">'price &lt; 10'</span>) <span class="comment"># 查詢大於小於只能用字串</span></span><br><span class="line">Owner.where(<span class="symbol">name:</span><span class="string">'ruby'</span>).first</span><br><span class="line"></span><br><span class="line"><span class="comment"># 直接 limit 1 筆，較省記憶體空間</span></span><br><span class="line"></span><br><span class="line">all = Owner.where(<span class="symbol">name:</span><span class="string">'ruby'</span>)</span><br><span class="line">all.first</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把全部資料都抓出來存到記憶體，再抓第一個，非常占空間</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>好用的方法們（不要傻傻的用 ORM 抓出來轉迴圈再來計算）<ul>
+<li>count</li>
+<li>average</li>
+<li>sum</li>
+<li>maximum 與 minimum</li>
+</ul>
+</li>
+</ul>
+<br>
+
+<h2 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">p1 = Product.find_by(<span class="symbol">id:</span> <span class="number">1</span>) <span class="comment"># 儲存</span></span><br><span class="line">p1.name = <span class="string">'Ruby book'</span> p1.save <span class="comment"># 更新</span></span><br><span class="line">p1.update(<span class="symbol">name:</span> <span class="string">'Ruby book'</span>)</span><br><span class="line">p1.update_attributes(<span class="symbol">name:</span> <span class="string">'Ruby book'</span>) <span class="comment"># update 兩者相同，這行可以不用（太長）</span></span><br><span class="line"></span><br><span class="line">Product.update_all(<span class="symbol">name:</span> <span class="string">'Ruby book'</span>, <span class="symbol">price:</span> <span class="number">250</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 全部更新(請⼩心使⽤!)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>其他方法</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># increment / decrement 不會自己 save 但 increment! 會直接存</span></span><br><span class="line"></span><br><span class="line">my_order = Order.first</span><br><span class="line">my_order.increment(<span class="symbol">:quantity</span>) <span class="comment"># quantity 欄位的值 + 1</span></span><br><span class="line">my_order.toggle(<span class="symbol">:is_online</span>) <span class="comment"># 把原本的 true/false 值對調</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h2 id="Delete"><a href="#Delete" class="headerlink" title="Delete"></a>Delete</h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">p1 = Product.find_by(<span class="symbol">id:</span> <span class="number">1</span>)</span><br><span class="line">p1.destroy <span class="comment"># 會走 callback 流程，過程可以做檢查</span></span><br><span class="line">p1.delete <span class="comment"># 直接刪除</span></span><br><span class="line">Product.delete(<span class="number">1</span>) <span class="comment"># 刪除編號 1 號的商品</span></span><br><span class="line">Product.destroy_all(<span class="string">"price &lt; 10"</span>) <span class="comment"># 刪除所有低於 10 元的商品</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<hr>
+<h1 id="ORM-其他"><a href="#ORM-其他" class="headerlink" title="ORM 其他"></a>ORM 其他</h1><br>
+
+<h2 id="Scope"><a href="#Scope" class="headerlink" title="Scope"></a>Scope</h2><ul>
+<li>把一群條件整理成一個</li>
+<li>Scope 簡化使用時的邏輯</li>
+<li>減少在 Controller 裡寫一堆 Where 組合</li>
+<li>用起來跟類別方法一樣</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># model 檔</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Product</span> &lt; ApplicationRecord</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">self</span>.<span class="title">cheap</span></span></span><br><span class="line">where(<span class="string">'price &lt; 10'</span>)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 上下兩者相同</span></span><br><span class="line"></span><br><span class="line">scope <span class="symbol">:cheap</span>, -&gt;&#123;where(<span class="string">'price &lt; 15'</span>)&#125;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 同名方法的話後面會蓋掉前面 結果為 price &lt; 15</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>default_scope 可幫所有的查詢預設套用</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Product</span> &lt; ApplicationRecord</span></span><br><span class="line">  default_scope &#123; order(<span class="string">'id DESC'</span>) &#125;</span><br><span class="line">  scope <span class="symbol">:available</span>, -&gt; &#123; where(<span class="symbol">is_available:</span> <span class="literal">true</span>) &#125;</span><br><span class="line">  default_scope &#123; where(<span class="symbol">deleted:</span> <span class="literal">false</span>) &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 應用場景：假刪除/軟刪除 讓被刪除資料不顯示</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Q: scope 跟類別方法有什麼不一樣?<br>A: 一樣<br>Q: 什麼時候該用什麼寫法?<br>A: 只有一行時寫 scope，多行就寫類別方法</p>
+</blockquote>
+<br>
+
+
+<h2 id="Validates"><a href="#Validates" class="headerlink" title="Validates"></a>Validates</h2><ul>
+<li>方法們：<ul>
+<li>presence</li>
+<li>format</li>
+<li>uniqueness</li>
+<li>numericality</li>
+<li>length</li>
+<li>condition</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自訂驗證</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Product</span> &lt; ApplicationRecord</span></span><br><span class="line">  validate <span class="symbol">:name_validator</span></span><br><span class="line">  </span><br><span class="line">  private</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">name_validator</span></span></span><br><span class="line">      <span class="keyword">unless</span> name.starts_with? <span class="string">'Ruby'</span></span><br><span class="line">        errors[<span class="symbol">:name</span>] &lt;&lt; <span class="string">'must begin with Ruby'</span> </span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BeginWithRubyValidator</span> &lt; ActiveModel::EachValidator</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">validate_each</span><span class="params">(record, attribute, value)</span></span></span><br><span class="line">    <span class="keyword">unless</span> value.starts_with? <span class="string">'Ruby'</span></span><br><span class="line">      record.errors[attribute] &lt;&lt; <span class="string">'must begin with Ruby'</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Product</span> &lt; ApplicationRecord</span></span><br><span class="line">  validates <span class="symbol">:name</span>, <span class="symbol">presence:</span> <span class="literal">true</span>, <span class="symbol">begin_with_ruby:</span> <span class="literal">true</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>自訂驗證寫在 lib 裡更好</li>
+<li>資料驗證過程：<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">p1 = Product.new <span class="comment"># 忘了寫產品名稱，但還沒寫入資料庫</span></span><br><span class="line"></span><br><span class="line">p1.errors.any? <span class="comment"># 看看有沒錯誤...</span></span><br><span class="line">=&gt; false <span class="comment"># 這時候還沒發⽣生錯誤</span></span><br><span class="line"></span><br><span class="line">p1.validate <span class="comment"># 開始進⾏行行驗證(還不需要存檔喔)</span></span><br><span class="line">=&gt; false <span class="comment"># 得到 false 表⽰示沒有驗證成功</span></span><br><span class="line"></span><br><span class="line">p1.errors.any? <span class="comment"># 看看有沒有錯誤...</span></span><br><span class="line">=&gt; true <span class="comment"># 這時候就有錯誤內容了了</span></span><br><span class="line"></span><br><span class="line">p1.errors.full_messages</span><br><span class="line">=&gt; [<span class="string">"Title can't be blank"</span>] <span class="comment"># 使⽤ full_messages 可把資料印出來</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<blockquote>
+<p>Q: 硬是要繞過驗證可以嗎?<br>A: 可以，繞過驗證的方式如下（但不要這麼做啦）<br>cc.save(validates: false)<br>Q: 只要有驗證就可以保證資料正確嗎?<br>A: 不，驗證是綁在 model ，另一個系統若直接寫進資料表就不行</p>
+</blockquote>
+<br>
+
+<h2 id="Callback"><a href="#Callback" class="headerlink" title="Callback"></a>Callback</h2><ul>
+<li><p>資料存檔的流程會經過以下流程，可在這些流程執行的時候對資料做一些事情</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">save &gt; valid &gt; before_validation &gt; validate &gt; after_validate &gt; before_save &gt; before_create &gt; create &gt; after_create &gt; after_save &gt; after_commit</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在資料存檔前對密碼加密</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span> &lt; ApplicationRecord</span></span><br><span class="line">  before_save <span class="symbol">:encrypt_email</span></span><br><span class="line">  private</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">encrypt_email</span></span></span><br><span class="line">    <span class="keyword">require</span> <span class="string">'digest'</span></span><br><span class="line">    <span class="keyword">self</span>.email = Digest::MD5.hexdigest(email)</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<blockquote>
+<p>Q: 在範例中，如果改用 before_save 會造成什麼問題?<br>A: 應該用 before_create ，加密只應該在建立時做，不應該每次更新都做<br>Q: before_save 跟 before_create 有什麼差別?<br>A: before_save 在新增 / 存檔時都會做，before_create 只有在新增時做</p>
+</blockquote>
+<br>
+            
+
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">標籤</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/tags/Rails/">Rails</a> <a class="tag tag--primary tag--small t-link" href="/tags/Ruby/">Ruby</a> <a class="tag tag--primary tag--small t-link" href="/tags/程式筆記/">程式筆記</a>
+
+            </div>
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/11/01/js30-01/"
+                    data-tooltip="JS30 Day01 Javascript Drum Kit"
+                    aria-label="上一篇: JS30 Day01 Javascript Drum Kit"
+                >
+                    
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                    </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/10/27/restful_api/"
+                    data-tooltip="RESTful API"
+                    aria-label="下一篇: RESTful API"
+                >
+                    
+                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a
+                class="post-action-btn btn btn--default btn-open-shareoptions"
+                href="#btn-open-shareoptions"
+                aria-label="Diesen Beitrag teilen"
+            >
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/31/rails_orm/"
+                    title="分享到 Facebook"
+                    aria-label="分享到 Facebook"
+                >
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/31/rails_orm/"
+                    title="分享到 Twitter"
+                    aria-label="分享到 Twitter"
+                >
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/10/31/rails_orm/"
+                    title="分享到 Google+"
+                    aria-label="分享到 Google+"
+                >
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a
+                        class="post-action-btn btn btn--default"
+                        href="#gitalk"
+                        aria-label="Kommentieren"
+                    >
+                        <i class="fa fa-comment"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+                <div id="gitalk"></div>
+
+            
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2019 Chai Wei-Li. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/11/01/js30-01/"
+                    data-tooltip="JS30 Day01 Javascript Drum Kit"
+                    aria-label="上一篇: JS30 Day01 Javascript Drum Kit"
+                >
+                    
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                    </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/10/27/restful_api/"
+                    data-tooltip="RESTful API"
+                    aria-label="下一篇: RESTful API"
+                >
+                    
+                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a
+                class="post-action-btn btn btn--default btn-open-shareoptions"
+                href="#btn-open-shareoptions"
+                aria-label="Diesen Beitrag teilen"
+            >
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/31/rails_orm/"
+                    title="分享到 Facebook"
+                    aria-label="分享到 Facebook"
+                >
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/31/rails_orm/"
+                    title="分享到 Twitter"
+                    aria-label="分享到 Twitter"
+                >
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/10/31/rails_orm/"
+                    title="分享到 Google+"
+                    aria-label="分享到 Google+"
+                >
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a
+                        class="post-action-btn btn btn--default"
+                        href="#gitalk"
+                        aria-label="Kommentieren"
+                    >
+                        <i class="fa fa-comment"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                
+    <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+        <i id="btn-close-shareoptions" class="fa fa-times"></i>
+        <ul class="share-options">
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/31/rails_orm/"
+                        aria-label="分享到 Facebook"
+                    >
+                        <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
+                    </a>
+                </li>
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/31/rails_orm/"
+                        aria-label="分享到 Twitter"
+                    >
+                        <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
+                    </a>
+                </li>
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://plus.google.com/share?url=https://chaichai.site/2019/10/31/rails_orm/"
+                        aria-label="分享到 Google+"
+                    >
+                        <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
+                    </a>
+                </li>
+            
+        </ul>
+    </div>
+
+
+            
+        </div>
+        
+
+
+    
+        
+    
+
+<div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-times"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/chai2.jpg" alt="作者的圖片"/>
+        
+            <h4 id="about-card-name">Chai Wei-Li</h4>
+        
+            <div id="about-card-bio"><p>A Laguageholic</br>Recently addicted to programing language.</p></div>
+        
+        
+            <div id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                <p>Web Developer</p>
+
+            </div>
+        
+        
+            <div id="about-card-location">
+                <i class="fa fa-map-marker-alt"></i>
+                <br/>
+                Taipei
+            </div>
+        
+    </div>
+</div>
+
+        
+            <div id="algolia-search-modal" class="modal-container">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="close-button"><i class="fa fa-times"></i></span>
+            <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+                <span class="searchby-algolia-text text-color-light text-small">by</span>
+                <img class="searchby-algolia-logo" src="/assets/images/logo-algolia-nebula-blue-full.svg">
+            </a>
+            <i class="search-icon fa fa-search"></i>
+            <form id="algolia-search-form">
+                <input type="text" id="algolia-search-input" name="search"
+                    class="form-control input--large search-input" placeholder="Search "
+                    />
+            </form>
+        </div>
+        <div class="modal-body">
+            <div class="no-result text-color-light text-center">沒有找到文章</div>
+            <div class="results">
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/01/welcome/"
+                            aria-label=": Welcome to Chai&#39;s Blog!"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/hN8k3LoUYnSOyMOAwBMpuczR7GQd98nCQHxmg2UvV4kA0On4bLdDmrA9bWAEVJ36UJ-ZEnsG2-ccsWJe_xv8yRtTxnJareRk7DHGZUITDVGan1m0gGwYfnaiOZgAo-z-3SBB_d7fWg=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/01/welcome/"
+                            aria-label=": Welcome to Chai&#39;s Blog!"
+                        >
+                            <h3 class="media-heading">Welcome to Chai&#39;s Blog!</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月1日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>Hi 我是柴柴～</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/23/ruby_symbol/"
+                            aria-label=": Ruby Symbol"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/23/ruby_symbol/"
+                            aria-label=": Ruby Symbol"
+                        >
+                            <h3 class="media-heading">Ruby Symbol</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月23日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/24/ducktyping/"
+                            aria-label=": Duck Typing"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/s2dsigYpyfhh__Eh4TbXD2rCxoG2mGLiV2pI3qJsd-_y4Ztny8YF9BGMXmeyXzFHGacfUwKZEftasMYAHIZkSHTMKmYaKYPGkh9hWQRRb4nhp-X0XZC6P2oB5s_yykmfGw6S8k0Kxw=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/24/ducktyping/"
+                            aria-label=": Duck Typing"
+                        >
+                            <h3 class="media-heading">Duck Typing</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月24日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/25/ruby_self/"
+                            aria-label=": Ruby Self"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/NeYoxrKq24oth2ySaToSkcDHE5lXhVSbzCTyQ35Ptw9wNuJolIcsTuN1ZrafDPrb7jJOGGLrLg5NA_XWsEPZ8ip4aDlkJRxzJRcYbBDmz4OIU3YidBZns_Ok7vbY7XDf_7pYDdS81A=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/25/ruby_self/"
+                            aria-label=": Ruby Self"
+                        >
+                            <h3 class="media-heading">Ruby Self</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月25日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>學 Ruby 時，時常在不同的方法中看到某個神秘變數 self ，self 到底是誰呢？</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/27/restful_api/"
+                            aria-label=": RESTful API"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/QCydJZepInKIwYFBx25UVoCDbViSSJmc_fgV1hbBOerg9Woa8Kw4yS-tSO287E-zFqvKpDaRLHAnrFb3UeNHN-JGtPAjm6S2OBa_fyttJTlspxhGn90y_y5V5yrWacM2MKERos7Pmw=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/27/restful_api/"
+                            aria-label=": RESTful API"
+                        >
+                            <h3 class="media-heading">RESTful API</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月27日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>為了理解目前 API 設計的主流，試著整理了網路上的解說文章，作為學習筆記。</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/31/rails_orm/"
+                            aria-label=": Rails ORM"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/31/rails_orm/"
+                            aria-label=": Rails ORM"
+                        >
+                            <h3 class="media-heading">Rails ORM</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月31日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>ORM 之 CRUD / Scope / Validates / Callback</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/01/js30-01/"
+                            aria-label=": JS30 Day01 Javascript Drum Kit"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/oHrBVL2M2VGLdqFeKw2_j7JzSYIopz3ErfXRWrySQUWohoDiwRtZ_zf2VDWAUm4CD63SUet8rxPRsA6xlv14K3uw4QcEcwUDiryIMPNl7LkwH2o2WcqGJWiklHbFrlC6A6RLsTxQoQ=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/01/js30-01/"
+                            aria-label=": JS30 Day01 Javascript Drum Kit"
+                        >
+                            <h3 class="media-heading">JS30 Day01 Javascript Drum Kit</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月1日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>JS30 Day01<br>第一天就學到了很多語法與實際應用，是個收穫非常豐富的開始！:D</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/03/js30-02/"
+                            aria-label=": JS30 Day02 JS and CSS Clock"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/Wv_Q8UDQUqxvRyrhEzoaGRr0ckCu-s11rrzvCn98P2mIPtO03WJflQPmwHM8kEFRYKCY2ljsanekrgwrYMYi-nCczNiL0Dmg0Ur4-LE8FnXnEw9riw9JhJzIMBEy1FEE9_CmYzBNUg=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/03/js30-02/"
+                            aria-label=": JS30 Day02 JS and CSS Clock"
+                        >
+                            <h3 class="media-heading">JS30 Day02 JS and CSS Clock</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月3日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>JS30 Day02<br>這次的課程提到了 CSS 與 JS 的 transform 屬性，對動畫有多一點的了解～</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/05/js30-03/"
+                            aria-label=": JS30 Day03 CSS Variables and JS"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/2CO_t1nwxHVvQidHax79TqgJBgKRzxGKtfxazE-th-fSPmAmVlaCV554YT97Atg8tW12GiSubr-A_TQ6wEJcKD24RoOMGnEJwUKmgzJERCrwxcPEoPo4a12gdz4N5wcSXlqgMA0ygw=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/05/js30-03/"
+                            aria-label=": JS30 Day03 CSS Variables and JS"
+                        >
+                            <h3 class="media-heading">JS30 Day03 CSS Variables and JS</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月5日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>JS30 Day03<br>以前學切版時很少使用 CSS 變數，這堂課用 CSS 變數 + JS 來即時改變畫面，才發現它非常實用，以後要多加利用！</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/07/rails_env/"
+                            aria-label=": Rails Environment"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/9kVNrSxfAwpPi7AhukVWVv3YJ5jdz6TinyVpRl5lNknMgXpBORwK_h1h-jx5faDAeHjD1LsHYAtPwtZUq_M2aTaO1U4W5oOeWR8fsuGIcK8FlFGViCtO7kg9DceGvSEK_bqZm3is5w=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/07/rails_env/"
+                            aria-label=": Rails Environment"
+                        >
+                            <h3 class="media-heading">Rails Environment</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月7日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>今天簡單地整理了基礎卻重要的概念：Rails 的環境 – Development / Test / Production。</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+            </div>
+        </div>
+        <div class="modal-footer">
+            <p class="results-count text-medium"
+                data-message-zero="沒有找到文章"
+                data-message-one="找到 1 篇文章"
+                data-message-other="找到 {n} 篇文章">
+                找到 12 篇文章
+            </p>
+        </div>
+    </div>
+</div>
+
+        
+        
+<div id="cover" style="background-image:url('/assets/images/c2.jpeg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-svtwgfryapukh90stjxmqmwdnkuvnvbtxrp4mjtwg8hlzz4imddb8f0ll3mm.min.js"></script>
+<!--SCRIPTS END-->
+
+
+    
+        <script src="/assets/js/gitalk.js"></script>
+        <script type="text/javascript">
+          (function() {
+            new Gitalk({
+              clientID: 'a9e7753a034dee201f15',
+              clientSecret: '171ad25db57c0a0c858c752236f8475b7e445e85',
+              repo: 'Chai0710.github.io',
+              owner: 'Chai0710',
+              admin: ['Chai0710'],
+              id: '2019/10/31/rails_orm/',
+              ...{"language":"zh-tw","perPage":10,"distractionFreeMode":false,"enableHotKey":true,"pagerDirection":"first"}
+            }).render('gitalk')
+          })()
+        </script>
+    
+
+
+
+    <script src="/assets/js/moment-with-locales.js"></script>
+    <script src="/assets/js/algoliasearch.js"></script>
+    <script>
+      var algoliaClient = algoliasearch('97U3I10513', '154ffe41ad15f749f65b714f6eee9128');
+      var algoliaIndex = algoliaClient.initIndex('Chai');
+    </script>
+
+
+    </body>
+</html>

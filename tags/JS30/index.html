@@ -1,0 +1,1013 @@
+
+<!DOCTYPE html>
+<html lang="zh-tw">
+    
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=UA-151110084-1"
+  ></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+
+    gtag("config", "UA-151110084-1");
+  </script>
+
+  <meta
+    name="google-site-verification"
+    content="0kcfPxt_TX47WHF1JZrdPwH938-fLEnIQuxxM-md_sU"
+  />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Chai&#39;s Blog" />
+  <title>標籤: JS30 - Chai&#39;s Blog</title>
+  <meta name="author" content="Chai Wei-Li" />
+  
+  <meta name="keywords" content="Ruby on Rails,Programmer," />
+   
+  <link
+    rel="icon"
+    href="https://chaichai.site/assets/images/footprint.jpg"
+  />
+   
+  <link
+    rel="alternate"
+    type="application/atom+xml"
+    title="RSS"
+    href="/atom.xml"
+  />
+   <script type="application/ld+json">{}</script> <meta name="keywords" content="Ruby on Rails,Programmer">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Chai&#39;s Blog">
+<meta property="og:url" content="https://chaichai.site/tags/JS30/index.html">
+<meta property="og:site_name" content="Chai&#39;s Blog">
+<meta property="og:locale" content="zh-tw">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chai&#39;s Blog">     
+  <meta
+    property="og:image"
+    content="https://chaichai.site/assets/images/chai2.jpg"
+  />
+     
+  <!--STYLES-->
+  <link rel="stylesheet" href="/assets/css/style-cfvtcukseptqvusuk7rzmd0l1apgmghnwq0qzcswk9li23zcutw2uurypnfc.min.css">
+  <!--STYLES END-->
+  
+  
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+<header id="header" data-behavior="1">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a
+            class="header-title-link"
+            href="/ "
+            aria-label=""
+        >
+            Chai&#39;s Blog
+        </a>
+    </div>
+    
+        
+            <a
+                class="header-right-icon open-algolia-search"
+                href="#search"
+                aria-label="打開鏈接: /#search"
+            >
+        
+        
+            <i class="search fa-lg"></i>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+
+        
+    
+
+<nav id="sidebar" data-behavior="1">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a
+                    href="/#about"
+                    aria-label="閱讀有關作者的更多信息"
+                >
+                    <img class="sidebar-profile-picture" src="/assets/images/chai2.jpg" alt="作者的圖片"/>
+                </a>
+                <h4 class="sidebar-profile-name">Chai Wei-Li</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>A Laguageholic</br>Recently addicted to programing language.</p></h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="首頁"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">首頁</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="分類"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">分類</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="標籤"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">標籤</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="所有文章"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">所有文章</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-algolia-search"
+                             href="#search"
+                            
+                            title="搜尋"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">搜尋</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="關於"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">關於</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/Chai0710" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fab fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/wownchai" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fab fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/in/weili-chai-619570128/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fab fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="mailto:wown0710@gmail.com" target="_blank" rel="noopener" title="Email">
+                    
+                        <i class="sidebar-button-icon fa fa-envelope" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Email</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="Atom"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Atom</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="1"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+    <section class="postShorten-group main-content-wrap">
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/2019/11/19/js30-05/"
+                            aria-label=": JS30 Day05 Flex Panels Image Gallery"
+                        >
+                            JS30 Day05 Flex Panels Image Gallery
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2019-11-19T00:00:00+08:00">
+	
+		    11月 19, 2019
+    	
+    </time>
+    
+        <span>分類 </span>
+        
+    <a class="category-link" href="/categories/JS30/">JS30</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>JS30 Day05<br>flex 不愧為排版聖品，簡單易學效果佳。</p>
+                    
+                        <a
+                            href="/2019/11/19/js30-05/"
+                            class="postShorten-excerpt_link link"
+                            aria-label=": JS30 Day05 Flex Panels Image Gallery"
+                        >
+                            繼續閱讀
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a
+                href="/2019/11/19/js30-05/"
+                aria-label=": JS30 Day05 Flex Panels Image Gallery"
+            >
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://lh3.googleusercontent.com/HYa17whnVcmsm8yb5Zt0rkWAQqgc83hxMCo5gZRosbnvtJLyFSujciHhORhoNPMV-rlrfQopWMpGn-F0JJA3g8DyHawrNDmYS9XGbsDayPeyqEg3IXl6WJwoVGY5WghsI15-MPdiYg=w2400"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/2019/11/17/js30-04/"
+                            aria-label=": JS30 Day04 Array Cardio Day 1"
+                        >
+                            JS30 Day04 Array Cardio Day 1
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2019-11-17T00:00:00+08:00">
+	
+		    11月 17, 2019
+    	
+    </time>
+    
+        <span>分類 </span>
+        
+    <a class="category-link" href="/categories/JS30/">JS30</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>JS30 Day04<br>對 JS 新手來說，這堂課非常重要。學會 Array 的各種方法，就可以解決大部分的問題！</p>
+                    
+                        <a
+                            href="/2019/11/17/js30-04/"
+                            class="postShorten-excerpt_link link"
+                            aria-label=": JS30 Day04 Array Cardio Day 1"
+                        >
+                            繼續閱讀
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a
+                href="/2019/11/17/js30-04/"
+                aria-label=": JS30 Day04 Array Cardio Day 1"
+            >
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://lh3.googleusercontent.com/8iJgeU-ySk5ncXIZI5TLLxWSSHV1Nz_bgKdwq6r0-wkYCc8mH8FlBhV_9CgmkXAVILHSANak34voPAIrHKKH_hlVeUqRRKmbim0OfQwY-ixQ35IshxxrLiUDii0fbaXw9G2tuc7lqw=w2400"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/2019/11/05/js30-03/"
+                            aria-label=": JS30 Day03 CSS Variables and JS"
+                        >
+                            JS30 Day03 CSS Variables and JS
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2019-11-05T00:00:00+08:00">
+	
+		    11月 05, 2019
+    	
+    </time>
+    
+        <span>分類 </span>
+        
+    <a class="category-link" href="/categories/JS30/">JS30</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>JS30 Day03<br>以前學切版時很少使用 CSS 變數，這堂課用 CSS 變數 + JS 來即時改變畫面，才發現它非常實用，以後要多加利用！</p>
+                    
+                        <a
+                            href="/2019/11/05/js30-03/"
+                            class="postShorten-excerpt_link link"
+                            aria-label=": JS30 Day03 CSS Variables and JS"
+                        >
+                            繼續閱讀
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a
+                href="/2019/11/05/js30-03/"
+                aria-label=": JS30 Day03 CSS Variables and JS"
+            >
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://lh3.googleusercontent.com/2CO_t1nwxHVvQidHax79TqgJBgKRzxGKtfxazE-th-fSPmAmVlaCV554YT97Atg8tW12GiSubr-A_TQ6wEJcKD24RoOMGnEJwUKmgzJERCrwxcPEoPo4a12gdz4N5wcSXlqgMA0ygw=w2400"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/2019/11/03/js30-02/"
+                            aria-label=": JS30 Day02 JS and CSS Clock"
+                        >
+                            JS30 Day02 JS and CSS Clock
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2019-11-03T00:00:00+08:00">
+	
+		    11月 03, 2019
+    	
+    </time>
+    
+        <span>分類 </span>
+        
+    <a class="category-link" href="/categories/JS30/">JS30</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>JS30 Day02<br>這次的課程提到了 CSS 與 JS 的 transform 屬性，對動畫有多一點的了解～</p>
+                    
+                        <a
+                            href="/2019/11/03/js30-02/"
+                            class="postShorten-excerpt_link link"
+                            aria-label=": JS30 Day02 JS and CSS Clock"
+                        >
+                            繼續閱讀
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a
+                href="/2019/11/03/js30-02/"
+                aria-label=": JS30 Day02 JS and CSS Clock"
+            >
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://lh3.googleusercontent.com/Wv_Q8UDQUqxvRyrhEzoaGRr0ckCu-s11rrzvCn98P2mIPtO03WJflQPmwHM8kEFRYKCY2ljsanekrgwrYMYi-nCczNiL0Dmg0Ur4-LE8FnXnEw9riw9JhJzIMBEy1FEE9_CmYzBNUg=w2400"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/2019/11/01/js30-01/"
+                            aria-label=": JS30 Day01 Javascript Drum Kit"
+                        >
+                            JS30 Day01 Javascript Drum Kit
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2019-11-01T00:00:00+08:00">
+	
+		    11月 01, 2019
+    	
+    </time>
+    
+        <span>分類 </span>
+        
+    <a class="category-link" href="/categories/JS30/">JS30</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>JS30 Day01<br>第一天就學到了很多語法與實際應用，是個收穫非常豐富的開始！:D</p>
+                    
+                        <a
+                            href="/2019/11/01/js30-01/"
+                            class="postShorten-excerpt_link link"
+                            aria-label=": JS30 Day01 Javascript Drum Kit"
+                        >
+                            繼續閱讀
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a
+                href="/2019/11/01/js30-01/"
+                aria-label=": JS30 Day01 Javascript Drum Kit"
+            >
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://lh3.googleusercontent.com/oHrBVL2M2VGLdqFeKw2_j7JzSYIopz3ErfXRWrySQUWohoDiwRtZ_zf2VDWAUm4CD63SUet8rxPRsA6xlv14K3uw4QcEcwUDiryIMPNl7LkwH2o2WcqGJWiklHbFrlC6A6RLsTxQoQ=w2400"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    <div class="pagination-bar">
+    <ul class="pagination">
+        
+        
+        <li class="pagination-number">第 1 頁 共 1 頁</li>
+    </ul>
+</div>
+
+</section>
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2019 Chai Wei-Li. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+        </div>
+        
+
+
+    
+        
+    
+
+<div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-times"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/chai2.jpg" alt="作者的圖片"/>
+        
+            <h4 id="about-card-name">Chai Wei-Li</h4>
+        
+            <div id="about-card-bio"><p>A Laguageholic</br>Recently addicted to programing language.</p></div>
+        
+        
+            <div id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                <p>Web Developer</p>
+
+            </div>
+        
+        
+            <div id="about-card-location">
+                <i class="fa fa-map-marker-alt"></i>
+                <br/>
+                Taipei
+            </div>
+        
+    </div>
+</div>
+
+        
+            <div id="algolia-search-modal" class="modal-container">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="close-button"><i class="fa fa-times"></i></span>
+            <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+                <span class="searchby-algolia-text text-color-light text-small">by</span>
+                <img class="searchby-algolia-logo" src="/assets/images/logo-algolia-nebula-blue-full.svg">
+            </a>
+            <i class="search-icon fa fa-search"></i>
+            <form id="algolia-search-form">
+                <input type="text" id="algolia-search-input" name="search"
+                    class="form-control input--large search-input" placeholder="Search "
+                    />
+            </form>
+        </div>
+        <div class="modal-body">
+            <div class="no-result text-color-light text-center">沒有找到文章</div>
+            <div class="results">
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/01/welcome/"
+                            aria-label=": Welcome to Chai&#39;s Blog!"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/hN8k3LoUYnSOyMOAwBMpuczR7GQd98nCQHxmg2UvV4kA0On4bLdDmrA9bWAEVJ36UJ-ZEnsG2-ccsWJe_xv8yRtTxnJareRk7DHGZUITDVGan1m0gGwYfnaiOZgAo-z-3SBB_d7fWg=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/01/welcome/"
+                            aria-label=": Welcome to Chai&#39;s Blog!"
+                        >
+                            <h3 class="media-heading">Welcome to Chai&#39;s Blog!</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月1日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>Hi 我是柴柴～</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/23/ruby_symbol/"
+                            aria-label=": Ruby Symbol"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/23/ruby_symbol/"
+                            aria-label=": Ruby Symbol"
+                        >
+                            <h3 class="media-heading">Ruby Symbol</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月23日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/24/ducktyping/"
+                            aria-label=": Duck Typing"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/s2dsigYpyfhh__Eh4TbXD2rCxoG2mGLiV2pI3qJsd-_y4Ztny8YF9BGMXmeyXzFHGacfUwKZEftasMYAHIZkSHTMKmYaKYPGkh9hWQRRb4nhp-X0XZC6P2oB5s_yykmfGw6S8k0Kxw=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/24/ducktyping/"
+                            aria-label=": Duck Typing"
+                        >
+                            <h3 class="media-heading">Duck Typing</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月24日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/25/ruby_self/"
+                            aria-label=": Ruby Self"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/NeYoxrKq24oth2ySaToSkcDHE5lXhVSbzCTyQ35Ptw9wNuJolIcsTuN1ZrafDPrb7jJOGGLrLg5NA_XWsEPZ8ip4aDlkJRxzJRcYbBDmz4OIU3YidBZns_Ok7vbY7XDf_7pYDdS81A=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/25/ruby_self/"
+                            aria-label=": Ruby Self"
+                        >
+                            <h3 class="media-heading">Ruby Self</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月25日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>學 Ruby 時，時常在不同的方法中看到某個神秘變數 self ，self 到底是誰呢？</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/27/restful_api/"
+                            aria-label=": RESTful API"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/QCydJZepInKIwYFBx25UVoCDbViSSJmc_fgV1hbBOerg9Woa8Kw4yS-tSO287E-zFqvKpDaRLHAnrFb3UeNHN-JGtPAjm6S2OBa_fyttJTlspxhGn90y_y5V5yrWacM2MKERos7Pmw=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/27/restful_api/"
+                            aria-label=": RESTful API"
+                        >
+                            <h3 class="media-heading">RESTful API</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月27日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>為了理解目前 API 設計的主流，試著整理了網路上的解說文章，作為學習筆記。</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/31/rails_orm/"
+                            aria-label=": Rails ORM"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/31/rails_orm/"
+                            aria-label=": Rails ORM"
+                        >
+                            <h3 class="media-heading">Rails ORM</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月31日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>ORM 之 CRUD / Scope / Validates / Callback</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/01/js30-01/"
+                            aria-label=": JS30 Day01 Javascript Drum Kit"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/oHrBVL2M2VGLdqFeKw2_j7JzSYIopz3ErfXRWrySQUWohoDiwRtZ_zf2VDWAUm4CD63SUet8rxPRsA6xlv14K3uw4QcEcwUDiryIMPNl7LkwH2o2WcqGJWiklHbFrlC6A6RLsTxQoQ=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/01/js30-01/"
+                            aria-label=": JS30 Day01 Javascript Drum Kit"
+                        >
+                            <h3 class="media-heading">JS30 Day01 Javascript Drum Kit</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月1日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>JS30 Day01<br>第一天就學到了很多語法與實際應用，是個收穫非常豐富的開始！:D</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/03/js30-02/"
+                            aria-label=": JS30 Day02 JS and CSS Clock"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/Wv_Q8UDQUqxvRyrhEzoaGRr0ckCu-s11rrzvCn98P2mIPtO03WJflQPmwHM8kEFRYKCY2ljsanekrgwrYMYi-nCczNiL0Dmg0Ur4-LE8FnXnEw9riw9JhJzIMBEy1FEE9_CmYzBNUg=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/03/js30-02/"
+                            aria-label=": JS30 Day02 JS and CSS Clock"
+                        >
+                            <h3 class="media-heading">JS30 Day02 JS and CSS Clock</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月3日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>JS30 Day02<br>這次的課程提到了 CSS 與 JS 的 transform 屬性，對動畫有多一點的了解～</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/05/js30-03/"
+                            aria-label=": JS30 Day03 CSS Variables and JS"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/2CO_t1nwxHVvQidHax79TqgJBgKRzxGKtfxazE-th-fSPmAmVlaCV554YT97Atg8tW12GiSubr-A_TQ6wEJcKD24RoOMGnEJwUKmgzJERCrwxcPEoPo4a12gdz4N5wcSXlqgMA0ygw=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/05/js30-03/"
+                            aria-label=": JS30 Day03 CSS Variables and JS"
+                        >
+                            <h3 class="media-heading">JS30 Day03 CSS Variables and JS</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月5日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>JS30 Day03<br>以前學切版時很少使用 CSS 變數，這堂課用 CSS 變數 + JS 來即時改變畫面，才發現它非常實用，以後要多加利用！</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/07/rails_env/"
+                            aria-label=": Rails Environment"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/9kVNrSxfAwpPi7AhukVWVv3YJ5jdz6TinyVpRl5lNknMgXpBORwK_h1h-jx5faDAeHjD1LsHYAtPwtZUq_M2aTaO1U4W5oOeWR8fsuGIcK8FlFGViCtO7kg9DceGvSEK_bqZm3is5w=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/07/rails_env/"
+                            aria-label=": Rails Environment"
+                        >
+                            <h3 class="media-heading">Rails Environment</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月7日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>今天簡單地整理了基礎卻重要的概念：Rails 的環境 – Development / Test / Production。</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+            </div>
+        </div>
+        <div class="modal-footer">
+            <p class="results-count text-medium"
+                data-message-zero="沒有找到文章"
+                data-message-one="找到 1 篇文章"
+                data-message-other="找到 {n} 篇文章">
+                找到 12 篇文章
+            </p>
+        </div>
+    </div>
+</div>
+
+        
+        
+<div id="cover" style="background-image:url('/assets/images/c2.jpeg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-svtwgfryapukh90stjxmqmwdnkuvnvbtxrp4mjtwg8hlzz4imddb8f0ll3mm.min.js"></script>
+<!--SCRIPTS END-->
+
+
+
+
+    <script src="/assets/js/moment-with-locales.js"></script>
+    <script src="/assets/js/algoliasearch.js"></script>
+    <script>
+      var algoliaClient = algoliasearch('97U3I10513', '154ffe41ad15f749f65b714f6eee9128');
+      var algoliaIndex = algoliaClient.initIndex('Chai');
+    </script>
+
+
+    </body>
+</html>

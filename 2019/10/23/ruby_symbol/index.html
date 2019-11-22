@@ -1,0 +1,1191 @@
+
+<!DOCTYPE html>
+<html lang="zh-tw">
+    
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=UA-151110084-1"
+  ></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+
+    gtag("config", "UA-151110084-1");
+  </script>
+
+  <meta
+    name="google-site-verification"
+    content="0kcfPxt_TX47WHF1JZrdPwH938-fLEnIQuxxM-md_sU"
+  />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="generator" content="Chai&#39;s Blog" />
+  <title>Ruby Symbol - Chai&#39;s Blog</title>
+  <meta name="author" content="Chai Wei-Li" />
+  
+  <meta name="keywords" content="Ruby on Rails,Programmer," />
+   
+  <link
+    rel="icon"
+    href="https://chaichai.site/assets/images/footprint.jpg"
+  />
+   
+  <link
+    rel="alternate"
+    type="application/atom+xml"
+    title="RSS"
+    href="/atom.xml"
+  />
+   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？\n\n\n\n何謂 SymbolRuby 的官方 API 中這麼寫道：\n\nSymbol 物件表示 Ruby 直譯器中的「名稱」及某些「字串」。Symbol 可以用：name 和：“string” 語法以及各種 to_sym 方法生成。無論內容或含義為何，都會在程序執行的期間為該名稱或字串創建相同的 Symbol 物件。因此，假設 Fred 在一個 context 中是一個常數，在一個 context 中是方法，也是另一個 context 的類別， Symbol：Fred 全都是相同的物件。\n\n123456789101112131415module One  class Fred  end  $f1 = :Fredendmodule Two  Fred = 1  $f2 = :Fredenddef Fred()end$f3 = :Fred$f1.object_id        # 2514190$f2.object_id        # 2514190$f3.object_id        # 2514190\n\n\nSymbol 就是一個 Symbol class 的實體。\nSymbol 不是變數，是「帶有名字的物件」，本質上就是「值」，不需要也不能指向任何東西。（變數則是指向某物件的名字，無法單獨存在。）\nSymbol 即使被重複使用，也都是同一個物件，object_id 不會變，不會消耗多餘的記憶體。\n\n\n\nSymbol 的取得方式1234:symbol:'symbol'%s!symbol!    # %記法# 可使用 Symbol.all_symbols 取得所有已生成的 Symbol 列表。\n\n\n當宣告新的變數 / 方法 / 類別時，Ruby 會偷偷新增新的 Symbol\n\n12im_chai = \"Chai\"Symbol.all_symbols.map(&amp;:to_s).include?(\"im_chai\")   # true\n\n\n\nSymbol 的命名規則\nSymbol 的表現方法為「：」後跟一個標識符，一個方法名稱（包括如「！」「？」「=」等等的後綴詞），一個變數名（包括如「$」的前綴詞等），英文或非英文皆可。唯一例外的是， Symbol 不接受「\\」字元。\n\n1234:LOCK_SH:$&lt;:こんにちは:”Good Day”\n\n\n\n\n\n\nSymbol 與 String 的比較\n相同 Symbol 指向的都是同一個記憶體，相同的 String 在每次產生時，都是在不同記憶體位置的不同物件。\n\n123456789101112133.times do  puts \"hello\".object_idend# 70199659402580# 70199659366640# 701996593665605.times do  puts :hello.object_idend# 899228# 899228# 899228\n\n\n\n\nSymbol 效能較好 / String 較差\n做比較的時候，Symbol 是比對 object id 是否相同，而 String 則是一個字母一個字母逐一比對。所以在效能上來說，String 在做比較的時間複雜度會隨著字母的數量而增加，但 Symbol 的比較因為只比較是不是同一顆物件，所以它的複雜度是固定的。\n\n\n\n1234p \"abc\" == \"abc\"           # truep \"abc\".equal?(\"abc\")      # falsep :abc == :abc             # truep :abc.equal?(:abc)        # true\n\n\n\n\nSymbol 可使用的方法較少 / String 較多（Symbol class 的某些方法與 String class 的方法具有相同的名稱和功能）\n\n123456:hello.length                  # 5:hello.upcase                  # :HELLO:hello[0]                      # \"h\":\"foobar--\".capitalize         # \"Foobar--\":foo.encoding                  # #&lt;Encoding:US-ASCII&gt;:哈哈.encoding                  # #&lt;Encoding:UTF-8&gt;\n\n\n\n\nSymbol 內容無法更動 / String 可以\n\n123456p :symbol           # :symbolp \"symbol\"          # \"symbol\"p :symbol[2]        # mp \"symbol\"[2]       # m:symbol[2] = \"k\"    # error\"symbol\"[2] = \"k\"\n\n\n\n\n如果把 String 給”冰凍”(freeze)起來，它便不可修改，object id 也會是同樣的。\n\n1234563.times do  puts \"hello\".freeze.object_idend# =&gt; 70314415546380# =&gt; 70314415546380# =&gt; 70314415546380\n\n\n\nSymbol 與 String 的轉換\nString 轉 Symbol：\n\n12p \"foo\".intern                   # :foop \"foo\".intern.to_s == \"foo\"     # true\n\n\nSymbol 轉 String：\n\n12p :foo.id2name                   # \"foo\"p :foo.id2name.intern == :foo    # true\n\n\n\n\n\n\nSymbol 的使用時機\n由於 Symbol 不可變更(immutable)，以及效能較好，當內容不會變動，又不需要使用 String 的那麼多方法時，即可使用 Symbol。\n\n例如：\n\nHash 中的 Key\n\n1profile = &#123; name: \"Chai\", age: 18 &#125;   # &#123;:name=&gt;\"Chai\", :age=&gt;18&#125;\n\n\n\n\nRails 的方法裡\n\n1234567891011def show  @page = Page.find(params[:id])enddef create  @page = Page.create(page_params)    if page.save      redirect_to pages_path    else      ender :new    endend\n\n\n\n\nProc\n\n1%w(A B C).map(&amp;:to_sym)      # [:A, :B, :C]\n\n\n\n\n多數時候 String 與 Symbol 可以互換使用，但也有只能使用 Symbol 或 String 的狀況，使用前務必詳閱 API 手冊。\n\n\n\n\n參考資料:https://ruby-doc.org/core-2.5.0/Symbol.htmlhttps://docs.ruby-lang.org/ja/latest/class/Symbol.htmlhttps://kaochenlong.com/2016/04/25/string-and-symbol/https://www.ibm.com/developerworks/cn/opensource/os-cn-rubysbl/index.htmlhttps://pjchender.github.io/2017/09/26/ruby-symbol%EF%BC%88%E7%AC%A6%E8%99%9F%EF%BC%89/https://ithelp.ithome.com.tw/articles/10161202\n","dateCreated":"2019-10-23T00:00:00+08:00","dateModified":"2019-10-31T21:21:36+08:00","datePublished":"2019-10-23T00:00:00+08:00","description":"在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？","headline":"Ruby Symbol","image":["https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400","https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/10/23/ruby_symbol/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/10/23/ruby_symbol/","keywords":"學習日誌, Ruby, Rails","thumbnailUrl":"https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400"}</script> <meta name="description" content="在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？">
+<meta name="keywords" content="學習日誌,Ruby,Rails">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Ruby Symbol">
+<meta property="og:url" content="https://chaichai.site/2019/10/23/ruby_symbol/index.html">
+<meta property="og:site_name" content="Chai&#39;s Blog">
+<meta property="og:description" content="在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:updated_time" content="2019-10-31T13:21:36.397Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ruby Symbol">
+<meta name="twitter:description" content="在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？">     
+  <meta
+    property="og:image"
+    content="https://chaichai.site/assets/images/chai2.jpg"
+  />
+   
+  <meta
+    property="og:image"
+    content="https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400"
+  />
+  <meta
+    class="swiftype"
+    name="image"
+    data-type="enum"
+    content="https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400"
+  />
+   
+  <meta
+    property="og:image"
+    content="https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400"
+  />
+  <meta
+    class="swiftype"
+    name="image"
+    data-type="enum"
+    content="https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400"
+  />
+   
+  <!--STYLES-->
+  <link rel="stylesheet" href="/assets/css/style-cfvtcukseptqvusuk7rzmd0l1apgmghnwq0qzcswk9li23zcutw2uurypnfc.min.css">
+  <!--STYLES END-->
+  
+    <link rel="stylesheet" href="/assets/css/gitalk.css">  
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a
+            class="header-title-link"
+            href="/ "
+            aria-label=""
+        >
+            Chai&#39;s Blog
+        </a>
+    </div>
+    
+        
+            <a
+                class="header-right-icon open-algolia-search"
+                href="#search"
+                aria-label="打開鏈接: /#search"
+            >
+        
+        
+            <i class="search fa-lg"></i>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+
+        
+    
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a
+                    href="/#about"
+                    aria-label="閱讀有關作者的更多信息"
+                >
+                    <img class="sidebar-profile-picture" src="/assets/images/chai2.jpg" alt="作者的圖片"/>
+                </a>
+                <h4 class="sidebar-profile-name">Chai Wei-Li</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>A Laguageholic</br>Recently addicted to programing language.</p></h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="首頁"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">首頁</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="分類"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">分類</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="標籤"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">標籤</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="所有文章"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">所有文章</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-algolia-search"
+                             href="#search"
+                            
+                            title="搜尋"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">搜尋</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="關於"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">關於</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/Chai0710" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fab fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/wownchai" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fab fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/in/weili-chai-619570128/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fab fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="mailto:wown0710@gmail.com" target="_blank" rel="noopener" title="Email">
+                    
+                        <i class="sidebar-button-icon fa fa-envelope" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Email</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="Atom"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Atom</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+        <div class="post-header-cover
+                    text-center
+                    post-header-cover--full"
+             style="background-image:url('https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400');"
+             data-behavior="4">
+            
+                <div class="post-header main-content-wrap text-center">
+    
+        <h1 class="post-title">
+            Ruby Symbol
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2019-10-23T00:00:00+08:00">
+	
+		    10月 23, 2019
+    	
+    </time>
+    
+        <span>分類 </span>
+        
+    <a class="category-link" href="/categories/學習日誌/">學習日誌</a>
+
+
+    
+</div>
+
+    
+</div>
+
+            
+        </div>
+
+            <div id="main" data-behavior="4"
+                 class="hasCover
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <p>在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？</p>
+<a id="more"></a>
+
+<hr>
+<h2 id="何謂-Symbol"><a href="#何謂-Symbol" class="headerlink" title="何謂 Symbol"></a>何謂 Symbol</h2><p>Ruby 的官方 API 中這麼寫道：</p>
+<blockquote>
+<p>Symbol 物件表示 Ruby 直譯器中的「名稱」及某些「字串」。<br>Symbol 可以用：name 和：“string” 語法以及各種 to_sym 方法生成。無論內容或含義為何，都會在程序執行的期間為該名稱或字串創建相同的 Symbol 物件。因此，假設 Fred 在一個 context 中是一個常數，在一個 context 中是方法，也是另一個 context 的類別， Symbol：Fred 全都是相同的物件。</p>
+</blockquote>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">module</span> <span class="title">One</span></span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Fred</span></span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  $f1 = <span class="symbol">:Fred</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="class"><span class="keyword">module</span> <span class="title">Two</span></span></span><br><span class="line">  Fred = <span class="number">1</span></span><br><span class="line">  $f2 = <span class="symbol">:Fred</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Fred</span><span class="params">()</span></span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">$f3 = <span class="symbol">:Fred</span></span><br><span class="line">$f1.object_id        <span class="comment"># 2514190</span></span><br><span class="line">$f2.object_id        <span class="comment"># 2514190</span></span><br><span class="line">$f3.object_id        <span class="comment"># 2514190</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Symbol 就是一個 Symbol class 的實體。</li>
+<li>Symbol 不是變數，是「帶有名字的物件」，本質上就是「值」，不需要也不能指向任何東西。（變數則是指向某物件的名字，無法單獨存在。）</li>
+<li>Symbol 即使被重複使用，也都是同一個物件，object_id 不會變，不會消耗多餘的記憶體。</li>
+</ul>
+<br>
+
+<h3 id="Symbol-的取得方式"><a href="#Symbol-的取得方式" class="headerlink" title="Symbol 的取得方式"></a>Symbol 的取得方式</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">:symbol</span></span><br><span class="line"><span class="symbol">:<span class="string">'symbol'</span></span></span><br><span class="line">%s!symbol!    <span class="comment"># %記法</span></span><br><span class="line"><span class="comment"># 可使用 Symbol.all_symbols 取得所有已生成的 Symbol 列表。</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>當宣告新的變數 / 方法 / 類別時，Ruby 會偷偷新增新的 Symbol</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">im_chai = <span class="string">"Chai"</span></span><br><span class="line">Symbol.all_symbols.map(&amp;<span class="symbol">:to_s</span>).<span class="keyword">include</span>?(<span class="string">"im_chai"</span>)   <span class="comment"># true</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="Symbol-的命名規則"><a href="#Symbol-的命名規則" class="headerlink" title="Symbol 的命名規則"></a>Symbol 的命名規則</h3><blockquote>
+<p>Symbol 的表現方法為「：」後跟一個標識符，一個方法名稱（包括如「！」「？」「=」等等的後綴詞），一個變數名（包括如「$」的前綴詞等），英文或非英文皆可。唯一例外的是， Symbol 不接受「\」字元。</p>
+</blockquote>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">:LOCK_SH</span></span><br><span class="line"><span class="symbol">:</span>$&lt;</span><br><span class="line"><span class="symbol">:</span>こんにちは</span><br><span class="line"><span class="symbol">:</span>”Good Day”</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<hr>
+<br>
+
+<h2 id="Symbol-與-String-的比較"><a href="#Symbol-與-String-的比較" class="headerlink" title="Symbol 與 String 的比較"></a>Symbol 與 String 的比較</h2><ul>
+<li>相同 Symbol 指向的都是同一個記憶體，相同的 String 在每次產生時，都是在不同記憶體位置的不同物件。</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">3</span>.times <span class="keyword">do</span></span><br><span class="line">  puts <span class="string">"hello"</span>.object_id</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 70199659402580</span></span><br><span class="line"><span class="comment"># 70199659366640</span></span><br><span class="line"><span class="comment"># 70199659366560</span></span><br><span class="line"><span class="number">5</span>.times <span class="keyword">do</span></span><br><span class="line">  puts <span class="symbol">:hello</span>.object_id</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment"># 899228</span></span><br><span class="line"><span class="comment"># 899228</span></span><br><span class="line"><span class="comment"># 899228</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>Symbol 效能較好 / String 較差<blockquote>
+<p>做比較的時候，Symbol 是比對 object id 是否相同，而 String 則是一個字母一個字母逐一比對。所以在效能上來說，String 在做比較的時間複雜度會隨著字母的數量而增加，但 Symbol 的比較因為只比較是不是同一顆物件，所以它的複雜度是固定的。</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">p <span class="string">"abc"</span> == <span class="string">"abc"</span>           <span class="comment"># true</span></span><br><span class="line">p <span class="string">"abc"</span>.equal?(<span class="string">"abc"</span>)      <span class="comment"># false</span></span><br><span class="line">p <span class="symbol">:abc</span> == <span class="symbol">:abc</span>             <span class="comment"># true</span></span><br><span class="line">p <span class="symbol">:abc</span>.equal?(<span class="symbol">:abc</span>)        <span class="comment"># true</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>Symbol 可使用的方法較少 / String 較多（Symbol class 的某些方法與 String class 的方法具有相同的名稱和功能）</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">:hello</span>.length                  <span class="comment"># 5</span></span><br><span class="line"><span class="symbol">:hello</span>.upcase                  <span class="comment"># :HELLO</span></span><br><span class="line"><span class="symbol">:hello</span>[<span class="number">0</span>]                      <span class="comment"># "h"</span></span><br><span class="line"><span class="symbol">:<span class="string">"foobar--"</span></span>.capitalize         <span class="comment"># "Foobar--"</span></span><br><span class="line"><span class="symbol">:foo</span>.encoding                  <span class="comment"># #&lt;Encoding:US-ASCII&gt;</span></span><br><span class="line"><span class="symbol">:</span>哈哈.encoding                  <span class="comment"># #&lt;Encoding:UTF-8&gt;</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>Symbol 內容無法更動 / String 可以</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">p <span class="symbol">:symbol</span>           <span class="comment"># :symbol</span></span><br><span class="line">p <span class="string">"symbol"</span>          <span class="comment"># "symbol"</span></span><br><span class="line">p <span class="symbol">:symbol</span>[<span class="number">2</span>]        <span class="comment"># m</span></span><br><span class="line">p <span class="string">"symbol"</span>[<span class="number">2</span>]       <span class="comment"># m</span></span><br><span class="line"><span class="symbol">:symbol</span>[<span class="number">2</span>] = <span class="string">"k"</span>    <span class="comment"># error</span></span><br><span class="line"><span class="string">"symbol"</span>[<span class="number">2</span>] = <span class="string">"k"</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>如果把 String 給”冰凍”(freeze)起來，它便不可修改，object id 也會是同樣的。</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">3</span>.times <span class="keyword">do</span></span><br><span class="line">  puts <span class="string">"hello"</span>.freeze.object_id</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment"># =&gt; 70314415546380</span></span><br><span class="line"><span class="comment"># =&gt; 70314415546380</span></span><br><span class="line"><span class="comment"># =&gt; 70314415546380</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="Symbol-與-String-的轉換"><a href="#Symbol-與-String-的轉換" class="headerlink" title="Symbol 與 String 的轉換"></a>Symbol 與 String 的轉換</h3><ul>
+<li>String 轉 Symbol：</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p <span class="string">"foo"</span>.intern                   <span class="comment"># :foo</span></span><br><span class="line">p <span class="string">"foo"</span>.intern.to_s == <span class="string">"foo"</span>     <span class="comment"># true</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Symbol 轉 String：</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">p <span class="symbol">:foo</span>.id2name                   <span class="comment"># "foo"</span></span><br><span class="line">p <span class="symbol">:foo</span>.id2name.intern == <span class="symbol">:foo</span>    <span class="comment"># true</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<hr>
+<br>
+
+<h2 id="Symbol-的使用時機"><a href="#Symbol-的使用時機" class="headerlink" title="Symbol 的使用時機"></a>Symbol 的使用時機</h2><blockquote>
+<p>由於 Symbol 不可變更(immutable)，以及效能較好，當內容不會變動，又不需要使用 String 的那麼多方法時，即可使用 Symbol。</p>
+</blockquote>
+<p>例如：</p>
+<ul>
+<li>Hash 中的 Key</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">profile = &#123; <span class="symbol">name:</span> <span class="string">"Chai"</span>, <span class="symbol">age:</span> <span class="number">18</span> &#125;   <span class="comment"># &#123;:name=&gt;"Chai", :age=&gt;18&#125;</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>Rails 的方法裡</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span></span></span><br><span class="line">  @page = Page.find(params[<span class="symbol">:id</span>])</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create</span></span></span><br><span class="line">  @page = Page.create(page_params)</span><br><span class="line">    <span class="keyword">if</span> page.save</span><br><span class="line">      redirect_to pages_path</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      ender <span class="symbol">:new</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<ul>
+<li>Proc</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">%w(A B C)</span>.map(&amp;<span class="symbol">:to_sym</span>)      <span class="comment"># [:A, :B, :C]</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<blockquote>
+<p>多數時候 String 與 Symbol 可以互換使用，但也有只能使用 Symbol 或 String 的狀況，使用前務必詳閱 API 手冊。</p>
+</blockquote>
+<br>
+
+<hr>
+<p>參考資料:<br><a href="https://ruby-doc.org/core-2.5.0/Symbol.html" target="_blank" rel="noopener">https://ruby-doc.org/core-2.5.0/Symbol.html</a><br><a href="https://docs.ruby-lang.org/ja/latest/class/Symbol.html" target="_blank" rel="noopener">https://docs.ruby-lang.org/ja/latest/class/Symbol.html</a><br><a href="https://kaochenlong.com/2016/04/25/string-and-symbol/" target="_blank" rel="noopener">https://kaochenlong.com/2016/04/25/string-and-symbol/</a><br><a href="https://www.ibm.com/developerworks/cn/opensource/os-cn-rubysbl/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/opensource/os-cn-rubysbl/index.html</a><br><a href="https://pjchender.github.io/2017/09/26/ruby-symbol%EF%BC%88%E7%AC%A6%E8%99%9F%EF%BC%89/" target="_blank" rel="noopener">https://pjchender.github.io/2017/09/26/ruby-symbol%EF%BC%88%E7%AC%A6%E8%99%9F%EF%BC%89/</a><br><a href="https://ithelp.ithome.com.tw/articles/10161202" target="_blank" rel="noopener">https://ithelp.ithome.com.tw/articles/10161202</a></p>
+
+            
+
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">標籤</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/tags/Rails/">Rails</a> <a class="tag tag--primary tag--small t-link" href="/tags/Ruby/">Ruby</a> <a class="tag tag--primary tag--small t-link" href="/tags/學習日誌/">學習日誌</a>
+
+            </div>
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/10/24/ducktyping/"
+                    data-tooltip="Duck Typing"
+                    aria-label="上一篇: Duck Typing"
+                >
+                    
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                    </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/10/01/welcome/"
+                    data-tooltip="Welcome to Chai&#39;s Blog!"
+                    aria-label="下一篇: Welcome to Chai&#39;s Blog!"
+                >
+                    
+                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a
+                class="post-action-btn btn btn--default btn-open-shareoptions"
+                href="#btn-open-shareoptions"
+                aria-label="Diesen Beitrag teilen"
+            >
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/23/ruby_symbol/"
+                    title="分享到 Facebook"
+                    aria-label="分享到 Facebook"
+                >
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/23/ruby_symbol/"
+                    title="分享到 Twitter"
+                    aria-label="分享到 Twitter"
+                >
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/10/23/ruby_symbol/"
+                    title="分享到 Google+"
+                    aria-label="分享到 Google+"
+                >
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a
+                        class="post-action-btn btn btn--default"
+                        href="#gitalk"
+                        aria-label="Kommentieren"
+                    >
+                        <i class="fa fa-comment"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+                <div id="gitalk"></div>
+
+            
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2019 Chai Wei-Li. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/10/24/ducktyping/"
+                    data-tooltip="Duck Typing"
+                    aria-label="上一篇: Duck Typing"
+                >
+                    
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
+                    </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                <a
+                    class="post-action-btn btn btn--default tooltip--top"
+                    href="/2019/10/01/welcome/"
+                    data-tooltip="Welcome to Chai&#39;s Blog!"
+                    aria-label="下一篇: Welcome to Chai&#39;s Blog!"
+                >
+                    
+                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a
+                class="post-action-btn btn btn--default btn-open-shareoptions"
+                href="#btn-open-shareoptions"
+                aria-label="Diesen Beitrag teilen"
+            >
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/23/ruby_symbol/"
+                    title="分享到 Facebook"
+                    aria-label="分享到 Facebook"
+                >
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/23/ruby_symbol/"
+                    title="分享到 Twitter"
+                    aria-label="分享到 Twitter"
+                >
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a
+                    class="post-action-btn btn btn--default"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/10/23/ruby_symbol/"
+                    title="分享到 Google+"
+                    aria-label="分享到 Google+"
+                >
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a
+                        class="post-action-btn btn btn--default"
+                        href="#gitalk"
+                        aria-label="Kommentieren"
+                    >
+                        <i class="fa fa-comment"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                
+    <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+        <i id="btn-close-shareoptions" class="fa fa-times"></i>
+        <ul class="share-options">
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/23/ruby_symbol/"
+                        aria-label="分享到 Facebook"
+                    >
+                        <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
+                    </a>
+                </li>
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/23/ruby_symbol/"
+                        aria-label="分享到 Twitter"
+                    >
+                        <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
+                    </a>
+                </li>
+            
+                
+                
+                <li class="share-option">
+                    <a
+                        class="share-option-btn"
+                        target="new"
+                        href="https://plus.google.com/share?url=https://chaichai.site/2019/10/23/ruby_symbol/"
+                        aria-label="分享到 Google+"
+                    >
+                        <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
+                    </a>
+                </li>
+            
+        </ul>
+    </div>
+
+
+            
+        </div>
+        
+
+
+    
+        
+    
+
+<div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-times"></i>
+        </div>
+        
+            <img id="about-card-picture" src="/assets/images/chai2.jpg" alt="作者的圖片"/>
+        
+            <h4 id="about-card-name">Chai Wei-Li</h4>
+        
+            <div id="about-card-bio"><p>A Laguageholic</br>Recently addicted to programing language.</p></div>
+        
+        
+            <div id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                <p>Web Developer</p>
+
+            </div>
+        
+        
+            <div id="about-card-location">
+                <i class="fa fa-map-marker-alt"></i>
+                <br/>
+                Taipei
+            </div>
+        
+    </div>
+</div>
+
+        
+            <div id="algolia-search-modal" class="modal-container">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="close-button"><i class="fa fa-times"></i></span>
+            <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+                <span class="searchby-algolia-text text-color-light text-small">by</span>
+                <img class="searchby-algolia-logo" src="/assets/images/logo-algolia-nebula-blue-full.svg">
+            </a>
+            <i class="search-icon fa fa-search"></i>
+            <form id="algolia-search-form">
+                <input type="text" id="algolia-search-input" name="search"
+                    class="form-control input--large search-input" placeholder="Search "
+                    />
+            </form>
+        </div>
+        <div class="modal-body">
+            <div class="no-result text-color-light text-center">沒有找到文章</div>
+            <div class="results">
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/01/welcome/"
+                            aria-label=": Welcome to Chai&#39;s Blog!"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/hN8k3LoUYnSOyMOAwBMpuczR7GQd98nCQHxmg2UvV4kA0On4bLdDmrA9bWAEVJ36UJ-ZEnsG2-ccsWJe_xv8yRtTxnJareRk7DHGZUITDVGan1m0gGwYfnaiOZgAo-z-3SBB_d7fWg=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/01/welcome/"
+                            aria-label=": Welcome to Chai&#39;s Blog!"
+                        >
+                            <h3 class="media-heading">Welcome to Chai&#39;s Blog!</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月1日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>Hi 我是柴柴～</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/23/ruby_symbol/"
+                            aria-label=": Ruby Symbol"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/0W7aJKk-xlk6II3OEkkMsKLqQ1YBW2fBfvV7hBxL6S_VszzAgCxcpXs6yExuxniGmTjopTsvjJyv5WQC9P1_qELLMJQ8N7Bjwuy7C5a-jQ732FNLmOyoJdR53nn0xt4HiF4GFEbF1w=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/23/ruby_symbol/"
+                            aria-label=": Ruby Symbol"
+                        >
+                            <h3 class="media-heading">Ruby Symbol</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月23日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>在學 Ruby 時，常常會看到 :name 等，前面帶有冒號的字，那到底是什麼呢？</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/24/ducktyping/"
+                            aria-label=": Duck Typing"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/s2dsigYpyfhh__Eh4TbXD2rCxoG2mGLiV2pI3qJsd-_y4Ztny8YF9BGMXmeyXzFHGacfUwKZEftasMYAHIZkSHTMKmYaKYPGkh9hWQRRb4nhp-X0XZC6P2oB5s_yykmfGw6S8k0Kxw=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/24/ducktyping/"
+                            aria-label=": Duck Typing"
+                        >
+                            <h3 class="media-heading">Duck Typing</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月24日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>「當看到一隻鳥走起來像鴨子、游泳起來像鴨子、叫起來也像鴨子，那麼這隻鳥就可以被稱為鴨子。」</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/25/ruby_self/"
+                            aria-label=": Ruby Self"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/NeYoxrKq24oth2ySaToSkcDHE5lXhVSbzCTyQ35Ptw9wNuJolIcsTuN1ZrafDPrb7jJOGGLrLg5NA_XWsEPZ8ip4aDlkJRxzJRcYbBDmz4OIU3YidBZns_Ok7vbY7XDf_7pYDdS81A=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/25/ruby_self/"
+                            aria-label=": Ruby Self"
+                        >
+                            <h3 class="media-heading">Ruby Self</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月25日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>學 Ruby 時，時常在不同的方法中看到某個神秘變數 self ，self 到底是誰呢？</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/27/restful_api/"
+                            aria-label=": RESTful API"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/QCydJZepInKIwYFBx25UVoCDbViSSJmc_fgV1hbBOerg9Woa8Kw4yS-tSO287E-zFqvKpDaRLHAnrFb3UeNHN-JGtPAjm6S2OBa_fyttJTlspxhGn90y_y5V5yrWacM2MKERos7Pmw=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/27/restful_api/"
+                            aria-label=": RESTful API"
+                        >
+                            <h3 class="media-heading">RESTful API</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月27日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>為了理解目前 API 設計的主流，試著整理了網路上的解說文章，作為學習筆記。</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/31/rails_orm/"
+                            aria-label=": Rails ORM"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/10/31/rails_orm/"
+                            aria-label=": Rails ORM"
+                        >
+                            <h3 class="media-heading">Rails ORM</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年10月31日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>ORM 之 CRUD / Scope / Validates / Callback</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/01/js30-01/"
+                            aria-label=": JS30 Day01 Javascript Drum Kit"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/oHrBVL2M2VGLdqFeKw2_j7JzSYIopz3ErfXRWrySQUWohoDiwRtZ_zf2VDWAUm4CD63SUet8rxPRsA6xlv14K3uw4QcEcwUDiryIMPNl7LkwH2o2WcqGJWiklHbFrlC6A6RLsTxQoQ=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/01/js30-01/"
+                            aria-label=": JS30 Day01 Javascript Drum Kit"
+                        >
+                            <h3 class="media-heading">JS30 Day01 Javascript Drum Kit</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月1日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>JS30 Day01<br>第一天就學到了很多語法與實際應用，是個收穫非常豐富的開始！:D</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/03/js30-02/"
+                            aria-label=": JS30 Day02 JS and CSS Clock"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/Wv_Q8UDQUqxvRyrhEzoaGRr0ckCu-s11rrzvCn98P2mIPtO03WJflQPmwHM8kEFRYKCY2ljsanekrgwrYMYi-nCczNiL0Dmg0Ur4-LE8FnXnEw9riw9JhJzIMBEy1FEE9_CmYzBNUg=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/03/js30-02/"
+                            aria-label=": JS30 Day02 JS and CSS Clock"
+                        >
+                            <h3 class="media-heading">JS30 Day02 JS and CSS Clock</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月3日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>JS30 Day02<br>這次的課程提到了 CSS 與 JS 的 transform 屬性，對動畫有多一點的了解～</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/05/js30-03/"
+                            aria-label=": JS30 Day03 CSS Variables and JS"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/2CO_t1nwxHVvQidHax79TqgJBgKRzxGKtfxazE-th-fSPmAmVlaCV554YT97Atg8tW12GiSubr-A_TQ6wEJcKD24RoOMGnEJwUKmgzJERCrwxcPEoPo4a12gdz4N5wcSXlqgMA0ygw=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/05/js30-03/"
+                            aria-label=": JS30 Day03 CSS Variables and JS"
+                        >
+                            <h3 class="media-heading">JS30 Day03 CSS Variables and JS</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月5日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>JS30 Day03<br>以前學切版時很少使用 CSS 變數，這堂課用 CSS 變數 + JS 來即時改變畫面，才發現它非常實用，以後要多加利用！</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+                <div class="media">
+                    
+                    <div class="media-left">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/07/rails_env/"
+                            aria-label=": Rails Environment"
+                        >
+                            <img class="media-image" src="https://lh3.googleusercontent.com/9kVNrSxfAwpPi7AhukVWVv3YJ5jdz6TinyVpRl5lNknMgXpBORwK_h1h-jx5faDAeHjD1LsHYAtPwtZUq_M2aTaO1U4W5oOeWR8fsuGIcK8FlFGViCtO7kg9DceGvSEK_bqZm3is5w=w2400" width="90" height="90"/>
+                        </a>
+                    </div>
+                    
+                    <div class="media-body">
+                        <a
+                            class="link-unstyled"
+                            href="https://chaichai.site/2019/11/07/rails_env/"
+                            aria-label=": Rails Environment"
+                        >
+                            <h3 class="media-heading">Rails Environment</h3>
+                        </a>
+                        <span class="media-meta">
+                            <span class="media-date text-small">
+                                
+                                    2019年11月7日
+                                
+                            </span>
+                        </span>
+                        <div class="media-content hide-xs font-merryweather"><p>今天簡單地整理了基礎卻重要的概念：Rails 的環境 – Development / Test / Production。</p></div>
+                    </div>
+                    <div style="clear:both;"></div>
+                    <hr>
+                </div>
+                
+            </div>
+        </div>
+        <div class="modal-footer">
+            <p class="results-count text-medium"
+                data-message-zero="沒有找到文章"
+                data-message-one="找到 1 篇文章"
+                data-message-other="找到 {n} 篇文章">
+                找到 12 篇文章
+            </p>
+        </div>
+    </div>
+</div>
+
+        
+        
+<div id="cover" style="background-image:url('/assets/images/c2.jpeg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-svtwgfryapukh90stjxmqmwdnkuvnvbtxrp4mjtwg8hlzz4imddb8f0ll3mm.min.js"></script>
+<!--SCRIPTS END-->
+
+
+    
+        <script src="/assets/js/gitalk.js"></script>
+        <script type="text/javascript">
+          (function() {
+            new Gitalk({
+              clientID: 'a9e7753a034dee201f15',
+              clientSecret: '171ad25db57c0a0c858c752236f8475b7e445e85',
+              repo: 'Chai0710.github.io',
+              owner: 'Chai0710',
+              admin: ['Chai0710'],
+              id: '2019/10/23/ruby_symbol/',
+              ...{"language":"zh-tw","perPage":10,"distractionFreeMode":false,"enableHotKey":true,"pagerDirection":"first"}
+            }).render('gitalk')
+          })()
+        </script>
+    
+
+
+
+    <script src="/assets/js/moment-with-locales.js"></script>
+    <script src="/assets/js/algoliasearch.js"></script>
+    <script>
+      var algoliaClient = algoliasearch('97U3I10513', '154ffe41ad15f749f65b714f6eee9128');
+      var algoliaIndex = algoliaClient.initIndex('Chai');
+    </script>
+
+
+    </body>
+</html>
