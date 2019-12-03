@@ -25,7 +25,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="generator" content="Chai&#39;s Blog" />
-  <title>Rails ORM - Chai&#39;s Blog</title>
+  <title>JS30 Day07 Array Cardio Day 2 - Chai&#39;s Blog</title>
   <meta name="author" content="Chai Wei-Li" />
   
   <meta name="keywords" content="Ruby on Rails,Programmer," />
@@ -41,18 +41,18 @@
     title="RSS"
     href="/atom.xml"
   />
-   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"ORM 之 CRUD / Scope / Validates / Callback\n\n\n\n\n\n\nORM = Object Relational Mapping\n\nActive Record ＝ 把資料做成物件Active Record 是一種 ORM 框架物件 = 欄位 + 基本操作 + 商業邏輯\n\nModel = 依照 Active Record 模式設計的產物可以翻譯成宅宅語言的：Model = Active_record.new\n\n\n\n\nORM CRUD\n\nCreate12345book = Product.new(name: 'Ruby book', price: 350)book.save # 到這⼀步才存到資料庫裡# 建立並同時存到 products 表格裡:Product.create(name: 'Ruby book', price:350)\n\n\nnew 方法會建立一筆資料，但還不會存到資料庫裡。\ncreate 失敗會 rollback ，可以用 if 判斷\ncreate! 失敗會 error，需要用 begin rescue 抓例外\n\n\n\nRead123456789101112Product.firstProduct.lastProduct.find(1) # 只能用 id 找，找不到會例外Product.find_by(id: 1) # 能用 name 等其他東西找，找不到會 nilProduct.find_by_sql(\"select \\* from products where id = 1\")Product.find_each do | product |# 預設抓 1000 筆endOwner.find_by_name_and_email_and_id # 還有這種神奇的寫法，但效能較差Owner.find_by(name:'kk', email:'ddd') # 效能比較好\n\n\n還有許多讀取方式\n\n1234567891011121314151617Product.all # 知道查什麼時就不用放 all (不需要每次都放)Product.select('name')Product.where(name: 'Ruby') # 找到全部 name 的陣列Product.find_by(name: 'Ruby') # 只會找到一筆Product.order('id DESC')Product.order(id: :desc)Product.limit(5)Owner.select(:name).where(name:'o1') # 可以用組合技，省記憶體空間Product.where('price &lt; 10') # 查詢大於小於只能用字串Owner.where(name:'ruby').first# 直接 limit 1 筆，較省記憶體空間all = Owner.where(name:'ruby')all.first# 把全部資料都抓出來存到記憶體，再抓第一個，非常占空間\n\n\n好用的方法們（不要傻傻的用 ORM 抓出來轉迴圈再來計算）\ncount\naverage\nsum\nmaximum 與 minimum\n\n\n\n\n\nUpdate12345678p1 = Product.find_by(id: 1) # 儲存p1.name = 'Ruby book' p1.save # 更新p1.update(name: 'Ruby book')p1.update_attributes(name: 'Ruby book') # update 兩者相同，這行可以不用（太長）Product.update_all(name: 'Ruby book', price: 250)# 全部更新(請⼩心使⽤!)\n\n\n其他方法\n\n12345# increment / decrement 不會自己 save 但 increment! 會直接存my_order = Order.firstmy_order.increment(:quantity) # quantity 欄位的值 + 1my_order.toggle(:is_online) # 把原本的 true/false 值對調\n\n\n\nDelete12345p1 = Product.find_by(id: 1)p1.destroy # 會走 callback 流程，過程可以做檢查p1.delete # 直接刪除Product.delete(1) # 刪除編號 1 號的商品Product.destroy_all(\"price &lt; 10\") # 刪除所有低於 10 元的商品\n\n\n\n\nORM 其他\n\nScope\n把一群條件整理成一個\nScope 簡化使用時的邏輯\n減少在 Controller 裡寫一堆 Where 組合\n用起來跟類別方法一樣\n\n123456789101112# model 檔class Product &lt; ApplicationRecorddef self.cheapwhere('price &lt; 10')end# 上下兩者相同scope :cheap, -&gt;&#123;where('price &lt; 15')&#125;end# 同名方法的話後面會蓋掉前面 結果為 price &lt; 15\n\n\ndefault_scope 可幫所有的查詢預設套用\n\n12345678class Product &lt; ApplicationRecord  default_scope &#123; order('id DESC') &#125;  scope :available, -&gt; &#123; where(is_available: true) &#125;  default_scope &#123; where(deleted: false) &#125;# 應用場景：假刪除/軟刪除 讓被刪除資料不顯示end\n\n\nQ: scope 跟類別方法有什麼不一樣?A: 一樣Q: 什麼時候該用什麼寫法?A: 只有一行時寫 scope，多行就寫類別方法\n\n\n\n\nValidates\n方法們：\npresence\nformat\nuniqueness\nnumericality\nlength\ncondition\n\n\n\n1234567891011121314151617181920212223# 自訂驗證class Product &lt; ApplicationRecord  validate :name_validator    private    def name_validator      unless name.starts_with? 'Ruby'        errors[:name] &lt;&lt; 'must begin with Ruby'       end    endendclass BeginWithRubyValidator &lt; ActiveModel::EachValidator  def validate_each(record, attribute, value)    unless value.starts_with? 'Ruby'      record.errors[attribute] &lt;&lt; 'must begin with Ruby'    end  endendclass Product &lt; ApplicationRecord  validates :name, presence: true, begin_with_ruby: trueend\n\n\n自訂驗證寫在 lib 裡更好\n資料驗證過程：12345678910111213p1 = Product.new # 忘了寫產品名稱，但還沒寫入資料庫p1.errors.any? # 看看有沒錯誤...=&gt; false # 這時候還沒發⽣生錯誤p1.validate # 開始進⾏行行驗證(還不需要存檔喔)=&gt; false # 得到 false 表⽰示沒有驗證成功p1.errors.any? # 看看有沒有錯誤...=&gt; true # 這時候就有錯誤內容了了p1.errors.full_messages=&gt; [\"Title can't be blank\"] # 使⽤ full_messages 可把資料印出來\n\n\n\n\nQ: 硬是要繞過驗證可以嗎?A: 可以，繞過驗證的方式如下（但不要這麼做啦）cc.save(validates: false)Q: 只要有驗證就可以保證資料正確嗎?A: 不，驗證是綁在 model ，另一個系統若直接寫進資料表就不行\n\n\n\nCallback\n資料存檔的流程會經過以下流程，可在這些流程執行的時候對資料做一些事情\n1save &gt; valid &gt; before_validation &gt; validate &gt; after_validate &gt; before_save &gt; before_create &gt; create &gt; after_create &gt; after_save &gt; after_commit\n\n在資料存檔前對密碼加密\n12345678class User &lt; ApplicationRecord  before_save :encrypt_email  private  def encrypt_email    require 'digest'    self.email = Digest::MD5.hexdigest(email)  endend\n\n\n\n\nQ: 在範例中，如果改用 before_save 會造成什麼問題?A: 應該用 before_create ，加密只應該在建立時做，不應該每次更新都做Q: before_save 跟 before_create 有什麼差別?A: before_save 在新增 / 存檔時都會做，before_create 只有在新增時做\n\n","dateCreated":"2019-10-31T00:00:00+08:00","dateModified":"2019-10-31T21:20:41+08:00","datePublished":"2019-10-31T00:00:00+08:00","description":"ORM 之 CRUD / Scope / Validates / Callback","headline":"Rails ORM","image":["https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400","https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/10/31/rails_orm/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/10/31/rails_orm/","keywords":"Ruby, Rails, 程式筆記","thumbnailUrl":"https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"}</script> <meta name="description" content="ORM 之 CRUD / Scope / Validates / Callback">
-<meta name="keywords" content="Ruby,Rails,程式筆記">
+   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"JS30 Day07今天介紹的 Array 方法很實用，可以用來多刷幾題 Codewars XD\n\n\n\nArray Cardio Day 2完成目標本課是延續 Day 4 ，介紹更多 JavaScript 中常見的 Array 方法。\n\n\n\n\n\nindex-START.html12345678910111213141516171819202122&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;  &lt;meta charset=\"UTF-8\"&gt;  &lt;title&gt;Type Ahead 👀&lt;/title&gt;  &lt;link rel=\"stylesheet\" href=\"style.css\"&gt;&lt;/head&gt;&lt;body&gt;  &lt;form class=\"search-form\"&gt;    &lt;input type=\"text\" class=\"search\" placeholder=\"City or State\"&gt;    &lt;ul class=\"suggestions\"&gt;      &lt;li&gt;Filter for a city&lt;/li&gt;      &lt;li&gt;or a state&lt;/li&gt;    &lt;/ul&gt;  &lt;/form&gt;&lt;script&gt;const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;\n\n\n\nindex-FINISHED.html12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;  &lt;meta charset=\"UTF-8\"&gt;  &lt;title&gt;Type Ahead 👀&lt;/title&gt;  &lt;link rel=\"stylesheet\" href=\"style.css\"&gt;&lt;/head&gt;&lt;body&gt;  &lt;form class=\"search-form\"&gt;    &lt;input type=\"text\" class=\"search\" placeholder=\"City or State\"&gt;    &lt;ul class=\"suggestions\"&gt;      &lt;li&gt;Filter for a city&lt;/li&gt;      &lt;li&gt;or a state&lt;/li&gt;    &lt;/ul&gt;  &lt;/form&gt;&lt;script&gt;const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';const cities = [];fetch(endpoint)  .then(blob =&gt; blob.json())  .then(data =&gt; cities.push(...data));function findMatches(wordToMatch, cities) &#123;  return cities.filter(place =&gt; &#123;    // here we need to figure out if the city or state matches what was searched    const regex = new RegExp(wordToMatch, 'gi');    return place.city.match(regex) || place.state.match(regex)  &#125;);&#125;function numberWithCommas(x) &#123;  return x.toString().replace(/\\B(?=(\\d&#123;3&#125;)+(?!\\d))/g, ',');&#125;function displayMatches() &#123;  const matchArray = findMatches(this.value, cities);  const html = matchArray.map(place =&gt; &#123;    const regex = new RegExp(this.value, 'gi');    const cityName = place.city.replace(regex, `&lt;span class=\"hl\"&gt;$&#123;this.value&#125;&lt;/span&gt;`);    const stateName = place.state.replace(regex, `&lt;span class=\"hl\"&gt;$&#123;this.value&#125;&lt;/span&gt;`);    return `      &lt;li&gt;        &lt;span class=\"name\"&gt;$&#123;cityName&#125;, $&#123;stateName&#125;&lt;/span&gt;        &lt;span class=\"population\"&gt;$&#123;numberWithCommas(place.population)&#125;&lt;/span&gt;      &lt;/li&gt;    `;  &#125;).join('');  suggestions.innerHTML = html;&#125;const searchInput = document.querySelector('.search');const suggestions = document.querySelector('.suggestions');searchInput.addEventListener('change', displayMatches);searchInput.addEventListener('keyup', displayMatches);&lt;/script&gt;  &lt;/body&gt;&lt;/html&gt;\n\n\n\n\n\n\n學習筆記\n\n★ getFullYear()getFullYear() 方法可返回一個表示年份的 4 位數字。\n語法：dateObject.getFullYear()\n範例：\n123456789var d = new Date()document.write(d.getFullYear())// 2019var born = new Date(\"July 10, 1991\")document.write(\"I was born in \" + born.getFullYear())// I was born in 1991\n\n\n\n★ splice()&lt;未完&gt;\n★ slice()\n★ some()\n★ every()\n★ find()\n","dateCreated":"2019-12-03T00:00:00+08:00","dateModified":"2019-12-03T23:17:26+08:00","datePublished":"2019-12-03T00:00:00+08:00","description":"JS30 Day07今天介紹的 Array 方法很實用，可以用來多刷幾題 Codewars XD","headline":"JS30 Day07 Array Cardio Day 2","image":["https://lh3.googleusercontent.com/AVt2NCEsc4x9we4bWej0IYRZ7k3IgPbwI_G-W8yhMleVDeeMDqEinnwBWfuVtk85XaI270Mb9lwCMr0VP_UW-8nvFlyY8Q_I6-u6L1xMH2SNui-UeateDsj8tUoCZ49l03_a_9oB-w=w2400","https://lh3.googleusercontent.com/AVt2NCEsc4x9we4bWej0IYRZ7k3IgPbwI_G-W8yhMleVDeeMDqEinnwBWfuVtk85XaI270Mb9lwCMr0VP_UW-8nvFlyY8Q_I6-u6L1xMH2SNui-UeateDsj8tUoCZ49l03_a_9oB-w=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/12/03/js30-07/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/12/03/js30-07/","keywords":"程式筆記, Javascript, JS30","thumbnailUrl":"https://lh3.googleusercontent.com/AVt2NCEsc4x9we4bWej0IYRZ7k3IgPbwI_G-W8yhMleVDeeMDqEinnwBWfuVtk85XaI270Mb9lwCMr0VP_UW-8nvFlyY8Q_I6-u6L1xMH2SNui-UeateDsj8tUoCZ49l03_a_9oB-w=w2400"}</script> <meta name="description" content="JS30 Day07今天介紹的 Array 方法很實用，可以用來多刷幾題 Codewars XD">
+<meta name="keywords" content="程式筆記,Javascript,JS30">
 <meta property="og:type" content="blog">
-<meta property="og:title" content="Rails ORM">
-<meta property="og:url" content="https://chaichai.site/2019/10/31/rails_orm/index.html">
+<meta property="og:title" content="JS30 Day07 Array Cardio Day 2">
+<meta property="og:url" content="https://chaichai.site/2019/12/03/js30-07/index.html">
 <meta property="og:site_name" content="Chai&#39;s Blog">
-<meta property="og:description" content="ORM 之 CRUD / Scope / Validates / Callback">
+<meta property="og:description" content="JS30 Day07今天介紹的 Array 方法很實用，可以用來多刷幾題 Codewars XD">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:updated_time" content="2019-10-31T13:20:41.683Z">
+<meta property="og:updated_time" content="2019-12-03T15:17:26.829Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Rails ORM">
-<meta name="twitter:description" content="ORM 之 CRUD / Scope / Validates / Callback">     
+<meta name="twitter:title" content="JS30 Day07 Array Cardio Day 2">
+<meta name="twitter:description" content="JS30 Day07今天介紹的 Array 方法很實用，可以用來多刷幾題 Codewars XD">     
   <meta
     property="og:image"
     content="https://chaichai.site/assets/images/chai2.jpg"
@@ -60,24 +60,24 @@
    
   <meta
     property="og:image"
-    content="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"
+    content="https://lh3.googleusercontent.com/AVt2NCEsc4x9we4bWej0IYRZ7k3IgPbwI_G-W8yhMleVDeeMDqEinnwBWfuVtk85XaI270Mb9lwCMr0VP_UW-8nvFlyY8Q_I6-u6L1xMH2SNui-UeateDsj8tUoCZ49l03_a_9oB-w=w2400"
   />
   <meta
     class="swiftype"
     name="image"
     data-type="enum"
-    content="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"
+    content="https://lh3.googleusercontent.com/AVt2NCEsc4x9we4bWej0IYRZ7k3IgPbwI_G-W8yhMleVDeeMDqEinnwBWfuVtk85XaI270Mb9lwCMr0VP_UW-8nvFlyY8Q_I6-u6L1xMH2SNui-UeateDsj8tUoCZ49l03_a_9oB-w=w2400"
   />
    
   <meta
     property="og:image"
-    content="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"
+    content="https://lh3.googleusercontent.com/AVt2NCEsc4x9we4bWej0IYRZ7k3IgPbwI_G-W8yhMleVDeeMDqEinnwBWfuVtk85XaI270Mb9lwCMr0VP_UW-8nvFlyY8Q_I6-u6L1xMH2SNui-UeateDsj8tUoCZ49l03_a_9oB-w=w2400"
   />
   <meta
     class="swiftype"
     name="image"
     data-type="enum"
-    content="https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400"
+    content="https://lh3.googleusercontent.com/AVt2NCEsc4x9we4bWej0IYRZ7k3IgPbwI_G-W8yhMleVDeeMDqEinnwBWfuVtk85XaI270Mb9lwCMr0VP_UW-8nvFlyY8Q_I6-u6L1xMH2SNui-UeateDsj8tUoCZ49l03_a_9oB-w=w2400"
   />
    
   <!--STYLES-->
@@ -288,26 +288,26 @@
         <div class="post-header-cover
                     text-center
                     post-header-cover--full"
-             style="background-image:url('https://lh3.googleusercontent.com/33If_Gtoqc_Q7UPiZ9lfC8Yzjl6qw5tw3wMq-fOv7VccK4qLZrKrgWD26I9226EDjwp8SsODJUMKhKIqqVnvY0xWSgeDQHbCqoO7HQ3OuhSFOtmdG3mw5eAXBROX_H-2HzH1ZwAp3Q=w2400');"
+             style="background-image:url('https://lh3.googleusercontent.com/AVt2NCEsc4x9we4bWej0IYRZ7k3IgPbwI_G-W8yhMleVDeeMDqEinnwBWfuVtk85XaI270Mb9lwCMr0VP_UW-8nvFlyY8Q_I6-u6L1xMH2SNui-UeateDsj8tUoCZ49l03_a_9oB-w=w2400');"
              data-behavior="4">
             
                 <div class="post-header main-content-wrap text-center">
     
         <h1 class="post-title">
-            Rails ORM
+            JS30 Day07 Array Cardio Day 2
         </h1>
     
     
         <div class="post-meta">
-    <time datetime="2019-10-31T00:00:00+08:00">
+    <time datetime="2019-12-03T00:00:00+08:00">
 	
-		    10月 31, 2019
+		    12月 03, 2019
     	
     </time>
     
         <span>分類 </span>
         
-    <a class="category-link" href="/categories/程式筆記/">程式筆記</a>
+    <a class="category-link" href="/categories/JS30/">JS30</a>
 
 
     
@@ -329,123 +329,42 @@
     
     <div class="post-content markdown">
         <div class="main-content-wrap">
-            <p>ORM 之 CRUD / Scope / Validates / Callback</p>
+            <p>JS30 Day07<br>今天介紹的 Array 方法很實用，可以用來多刷幾題 Codewars XD</p>
 <a id="more"></a>
 
 <hr>
+<h1 id="Array-Cardio-Day-2"><a href="#Array-Cardio-Day-2" class="headerlink" title="Array Cardio Day 2"></a>Array Cardio Day 2</h1><h2 id="完成目標"><a href="#完成目標" class="headerlink" title="完成目標"></a>完成目標</h2><p>本課是延續 Day 4 ，介紹更多 JavaScript 中常見的 Array 方法。</p>
 <br>
 
-<ul>
-<li><p>ORM = Object Relational Mapping</p>
-</li>
-<li><p>Active Record ＝ 把資料做成物件<br>Active Record 是一種 ORM 框架<br>物件 = 欄位 + 基本操作 + 商業邏輯</p>
-</li>
-<li><p>Model = 依照 Active Record 模式設計的產物<br>可以翻譯成宅宅語言的：<br>Model = Active_record.new</p>
-<br>
-</li>
-</ul>
 <hr>
-<h1 id="ORM-CRUD"><a href="#ORM-CRUD" class="headerlink" title="ORM CRUD"></a>ORM CRUD</h1><br>
-
-<h2 id="Create"><a href="#Create" class="headerlink" title="Create"></a>Create</h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">book = Product.new(<span class="symbol">name:</span> <span class="string">'Ruby book'</span>, <span class="symbol">price:</span> <span class="number">350</span>)</span><br><span class="line">book.save <span class="comment"># 到這⼀步才存到資料庫裡</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立並同時存到 products 表格裡:</span></span><br><span class="line">Product.create(<span class="symbol">name:</span> <span class="string">'Ruby book'</span>, <span class="symbol">price:</span><span class="number">350</span>)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>new 方法會建立一筆資料，但還不會存到資料庫裡。</li>
-<li>create 失敗會 rollback ，可以用 if 判斷</li>
-<li>create! 失敗會 error，需要用 begin rescue 抓例外</li>
-</ul>
 <br>
 
-<h2 id="Read"><a href="#Read" class="headerlink" title="Read"></a>Read</h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Product.first</span><br><span class="line">Product.last</span><br><span class="line">Product.find(<span class="number">1</span>) <span class="comment"># 只能用 id 找，找不到會例外</span></span><br><span class="line">Product.find_by(<span class="symbol">id:</span> <span class="number">1</span>) <span class="comment"># 能用 name 等其他東西找，找不到會 nil</span></span><br><span class="line">Product.find_by_sql(<span class="string">"select \* from products where id = 1"</span>)</span><br><span class="line">Product.find_each <span class="keyword">do</span> <span class="params">| product |</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 預設抓 1000 筆</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">Owner.find_by_name_and_email_and_id <span class="comment"># 還有這種神奇的寫法，但效能較差</span></span><br><span class="line">Owner.find_by(<span class="symbol">name:</span><span class="string">'kk'</span>, <span class="symbol">email:</span><span class="string">'ddd'</span>) <span class="comment"># 效能比較好</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>還有許多讀取方式</li>
-</ul>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Product.all <span class="comment"># 知道查什麼時就不用放 all (不需要每次都放)</span></span><br><span class="line">Product.select(<span class="string">'name'</span>)</span><br><span class="line">Product.where(<span class="symbol">name:</span> <span class="string">'Ruby'</span>) <span class="comment"># 找到全部 name 的陣列</span></span><br><span class="line">Product.find_by(<span class="symbol">name:</span> <span class="string">'Ruby'</span>) <span class="comment"># 只會找到一筆</span></span><br><span class="line">Product.order(<span class="string">'id DESC'</span>)</span><br><span class="line">Product.order(<span class="symbol">id:</span> <span class="symbol">:desc</span>)</span><br><span class="line">Product.limit(<span class="number">5</span>)</span><br><span class="line">Owner.select(<span class="symbol">:name</span>).where(<span class="symbol">name:</span><span class="string">'o1'</span>) <span class="comment"># 可以用組合技，省記憶體空間</span></span><br><span class="line">Product.where(<span class="string">'price &lt; 10'</span>) <span class="comment"># 查詢大於小於只能用字串</span></span><br><span class="line">Owner.where(<span class="symbol">name:</span><span class="string">'ruby'</span>).first</span><br><span class="line"></span><br><span class="line"><span class="comment"># 直接 limit 1 筆，較省記憶體空間</span></span><br><span class="line"></span><br><span class="line">all = Owner.where(<span class="symbol">name:</span><span class="string">'ruby'</span>)</span><br><span class="line">all.first</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把全部資料都抓出來存到記憶體，再抓第一個，非常占空間</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>好用的方法們（不要傻傻的用 ORM 抓出來轉迴圈再來計算）<ul>
-<li>count</li>
-<li>average</li>
-<li>sum</li>
-<li>maximum 與 minimum</li>
-</ul>
-</li>
-</ul>
-<br>
-
-<h2 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">p1 = Product.find_by(<span class="symbol">id:</span> <span class="number">1</span>) <span class="comment"># 儲存</span></span><br><span class="line">p1.name = <span class="string">'Ruby book'</span> p1.save <span class="comment"># 更新</span></span><br><span class="line">p1.update(<span class="symbol">name:</span> <span class="string">'Ruby book'</span>)</span><br><span class="line">p1.update_attributes(<span class="symbol">name:</span> <span class="string">'Ruby book'</span>) <span class="comment"># update 兩者相同，這行可以不用（太長）</span></span><br><span class="line"></span><br><span class="line">Product.update_all(<span class="symbol">name:</span> <span class="string">'Ruby book'</span>, <span class="symbol">price:</span> <span class="number">250</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 全部更新(請⼩心使⽤!)</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>其他方法</li>
-</ul>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># increment / decrement 不會自己 save 但 increment! 會直接存</span></span><br><span class="line"></span><br><span class="line">my_order = Order.first</span><br><span class="line">my_order.increment(<span class="symbol">:quantity</span>) <span class="comment"># quantity 欄位的值 + 1</span></span><br><span class="line">my_order.toggle(<span class="symbol">:is_online</span>) <span class="comment"># 把原本的 true/false 值對調</span></span><br></pre></td></tr></table></figure>
+<h3 id="index-START-html"><a href="#index-START-html" class="headerlink" title="index-START.html"></a>index-START.html</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Type Ahead 👀<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"style.css"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">form</span> <span class="attr">class</span>=<span class="string">"search-form"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"search"</span> <span class="attr">placeholder</span>=<span class="string">"City or State"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"suggestions"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span>Filter for a city<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span>or a state<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line">const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <br>
 
-<h2 id="Delete"><a href="#Delete" class="headerlink" title="Delete"></a>Delete</h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">p1 = Product.find_by(<span class="symbol">id:</span> <span class="number">1</span>)</span><br><span class="line">p1.destroy <span class="comment"># 會走 callback 流程，過程可以做檢查</span></span><br><span class="line">p1.delete <span class="comment"># 直接刪除</span></span><br><span class="line">Product.delete(<span class="number">1</span>) <span class="comment"># 刪除編號 1 號的商品</span></span><br><span class="line">Product.destroy_all(<span class="string">"price &lt; 10"</span>) <span class="comment"># 刪除所有低於 10 元的商品</span></span><br></pre></td></tr></table></figure>
+<h3 id="index-FINISHED-html"><a href="#index-FINISHED-html" class="headerlink" title="index-FINISHED.html"></a>index-FINISHED.html</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Type Ahead 👀<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"style.css"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">form</span> <span class="attr">class</span>=<span class="string">"search-form"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"search"</span> <span class="attr">placeholder</span>=<span class="string">"City or State"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"suggestions"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span>Filter for a city<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span>or a state<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line">const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';</span><br><span class="line"></span><br><span class="line">const cities = [];</span><br><span class="line">fetch(endpoint)</span><br><span class="line">  .then(blob =&gt; blob.json())</span><br><span class="line">  .then(data =&gt; cities.push(...data));</span><br><span class="line"></span><br><span class="line">function findMatches(wordToMatch, cities) &#123;</span><br><span class="line">  return cities.filter(place =&gt; &#123;</span><br><span class="line">    // here we need to figure out if the city or state matches what was searched</span><br><span class="line">    const regex = new RegExp(wordToMatch, 'gi');</span><br><span class="line">    return place.city.match(regex) || place.state.match(regex)</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function numberWithCommas(x) &#123;</span><br><span class="line">  return x.toString().replace(/\B(?=(\d&#123;3&#125;)+(?!\d))/g, ',');</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function displayMatches() &#123;</span><br><span class="line">  const matchArray = findMatches(this.value, cities);</span><br><span class="line">  const html = matchArray.map(place =&gt; &#123;</span><br><span class="line">    const regex = new RegExp(this.value, 'gi');</span><br><span class="line"><span class="xml">    const cityName = place.city.replace(regex, `<span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"hl"</span>&gt;</span>$&#123;this.value&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span>`);</span></span><br><span class="line"><span class="xml">    const stateName = place.state.replace(regex, `<span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"hl"</span>&gt;</span>$&#123;this.value&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span>`);</span></span><br><span class="line">    return `</span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">li</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"name"</span>&gt;</span>$&#123;cityName&#125;, $&#123;stateName&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"population"</span>&gt;</span>$&#123;numberWithCommas(place.population)&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">    `;</span><br><span class="line">  &#125;).join('');</span><br><span class="line">  suggestions.innerHTML = html;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const searchInput = document.querySelector('.search');</span><br><span class="line">const suggestions = document.querySelector('.suggestions');</span><br><span class="line"></span><br><span class="line">searchInput.addEventListener('change', displayMatches);</span><br><span class="line">searchInput.addEventListener('keyup', displayMatches);</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <br>
 
 <hr>
-<h1 id="ORM-其他"><a href="#ORM-其他" class="headerlink" title="ORM 其他"></a>ORM 其他</h1><br>
-
-<h2 id="Scope"><a href="#Scope" class="headerlink" title="Scope"></a>Scope</h2><ul>
-<li>把一群條件整理成一個</li>
-<li>Scope 簡化使用時的邏輯</li>
-<li>減少在 Controller 裡寫一堆 Where 組合</li>
-<li>用起來跟類別方法一樣</li>
-</ul>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># model 檔</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Product</span> &lt; ApplicationRecord</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">self</span>.<span class="title">cheap</span></span></span><br><span class="line">where(<span class="string">'price &lt; 10'</span>)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 上下兩者相同</span></span><br><span class="line"></span><br><span class="line">scope <span class="symbol">:cheap</span>, -&gt;&#123;where(<span class="string">'price &lt; 15'</span>)&#125;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 同名方法的話後面會蓋掉前面 結果為 price &lt; 15</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>default_scope 可幫所有的查詢預設套用</li>
-</ul>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Product</span> &lt; ApplicationRecord</span></span><br><span class="line">  default_scope &#123; order(<span class="string">'id DESC'</span>) &#125;</span><br><span class="line">  scope <span class="symbol">:available</span>, -&gt; &#123; where(<span class="symbol">is_available:</span> <span class="literal">true</span>) &#125;</span><br><span class="line">  default_scope &#123; where(<span class="symbol">deleted:</span> <span class="literal">false</span>) &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 應用場景：假刪除/軟刪除 讓被刪除資料不顯示</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>Q: scope 跟類別方法有什麼不一樣?<br>A: 一樣<br>Q: 什麼時候該用什麼寫法?<br>A: 只有一行時寫 scope，多行就寫類別方法</p>
-</blockquote>
 <br>
 
+<h2 id="學習筆記"><a href="#學習筆記" class="headerlink" title="學習筆記"></a>學習筆記</h2><br>
 
-<h2 id="Validates"><a href="#Validates" class="headerlink" title="Validates"></a>Validates</h2><ul>
-<li>方法們：<ul>
-<li>presence</li>
-<li>format</li>
-<li>uniqueness</li>
-<li>numericality</li>
-<li>length</li>
-<li>condition</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自訂驗證</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Product</span> &lt; ApplicationRecord</span></span><br><span class="line">  validate <span class="symbol">:name_validator</span></span><br><span class="line">  </span><br><span class="line">  private</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">name_validator</span></span></span><br><span class="line">      <span class="keyword">unless</span> name.starts_with? <span class="string">'Ruby'</span></span><br><span class="line">        errors[<span class="symbol">:name</span>] &lt;&lt; <span class="string">'must begin with Ruby'</span> </span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BeginWithRubyValidator</span> &lt; ActiveModel::EachValidator</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">validate_each</span><span class="params">(record, attribute, value)</span></span></span><br><span class="line">    <span class="keyword">unless</span> value.starts_with? <span class="string">'Ruby'</span></span><br><span class="line">      record.errors[attribute] &lt;&lt; <span class="string">'must begin with Ruby'</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Product</span> &lt; ApplicationRecord</span></span><br><span class="line">  validates <span class="symbol">:name</span>, <span class="symbol">presence:</span> <span class="literal">true</span>, <span class="symbol">begin_with_ruby:</span> <span class="literal">true</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h4 id="★-getFullYear"><a href="#★-getFullYear" class="headerlink" title="★ getFullYear()"></a>★ getFullYear()</h4><p><code>getFullYear()</code> 方法可返回一個表示年份的 4 位數字。</p>
+<p>語法：<code>dateObject.getFullYear()</code></p>
+<p>範例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> d = <span class="keyword">new</span> <span class="built_in">Date</span>()</span><br><span class="line"><span class="built_in">document</span>.write(d.getFullYear())</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2019</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> born = <span class="keyword">new</span> <span class="built_in">Date</span>(<span class="string">"July 10, 1991"</span>)</span><br><span class="line"><span class="built_in">document</span>.write(<span class="string">"I was born in "</span> + born.getFullYear())</span><br><span class="line"></span><br><span class="line"><span class="comment">// I was born in 1991</span></span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>自訂驗證寫在 lib 裡更好</li>
-<li>資料驗證過程：<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">p1 = Product.new <span class="comment"># 忘了寫產品名稱，但還沒寫入資料庫</span></span><br><span class="line"></span><br><span class="line">p1.errors.any? <span class="comment"># 看看有沒錯誤...</span></span><br><span class="line">=&gt; false <span class="comment"># 這時候還沒發⽣生錯誤</span></span><br><span class="line"></span><br><span class="line">p1.validate <span class="comment"># 開始進⾏行行驗證(還不需要存檔喔)</span></span><br><span class="line">=&gt; false <span class="comment"># 得到 false 表⽰示沒有驗證成功</span></span><br><span class="line"></span><br><span class="line">p1.errors.any? <span class="comment"># 看看有沒有錯誤...</span></span><br><span class="line">=&gt; true <span class="comment"># 這時候就有錯誤內容了了</span></span><br><span class="line"></span><br><span class="line">p1.errors.full_messages</span><br><span class="line">=&gt; [<span class="string">"Title can't be blank"</span>] <span class="comment"># 使⽤ full_messages 可把資料印出來</span></span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<blockquote>
-<p>Q: 硬是要繞過驗證可以嗎?<br>A: 可以，繞過驗證的方式如下（但不要這麼做啦）<br>cc.save(validates: false)<br>Q: 只要有驗證就可以保證資料正確嗎?<br>A: 不，驗證是綁在 model ，另一個系統若直接寫進資料表就不行</p>
-</blockquote>
 <br>
 
-<h2 id="Callback"><a href="#Callback" class="headerlink" title="Callback"></a>Callback</h2><ul>
-<li><p>資料存檔的流程會經過以下流程，可在這些流程執行的時候對資料做一些事情</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">save &gt; valid &gt; before_validation &gt; validate &gt; after_validate &gt; before_save &gt; before_create &gt; create &gt; after_create &gt; after_save &gt; after_commit</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在資料存檔前對密碼加密</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span> &lt; ApplicationRecord</span></span><br><span class="line">  before_save <span class="symbol">:encrypt_email</span></span><br><span class="line">  private</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">encrypt_email</span></span></span><br><span class="line">    <span class="keyword">require</span> <span class="string">'digest'</span></span><br><span class="line">    <span class="keyword">self</span>.email = Digest::MD5.hexdigest(email)</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h4 id="★-splice"><a href="#★-splice" class="headerlink" title="★ splice()"></a>★ splice()</h4><p>&lt;未完&gt;</p>
+<p>★ slice()</p>
+<p>★ some()</p>
+<p>★ every()</p>
+<p>★ find()</p>
 
-</li>
-</ul>
-<blockquote>
-<p>Q: 在範例中，如果改用 before_save 會造成什麼問題?<br>A: 應該用 before_create ，加密只應該在建立時做，不應該每次更新都做<br>Q: before_save 跟 before_create 有什麼差別?<br>A: before_save 在新增 / 存檔時都會做，before_create 只有在新增時做</p>
-</blockquote>
-<br>
             
 
 
@@ -456,7 +375,7 @@
             <div class="post-footer-tags">
                 <span class="text-color-light text-small">標籤</span><br/>
                 
-    <a class="tag tag--primary tag--small t-link" href="/tags/Rails/">Rails</a> <a class="tag tag--primary tag--small t-link" href="/tags/Ruby/">Ruby</a> <a class="tag tag--primary tag--small t-link" href="/tags/程式筆記/">程式筆記</a>
+    <a class="tag tag--primary tag--small t-link" href="/tags/JS30/">JS30</a> <a class="tag tag--primary tag--small t-link" href="/tags/Javascript/">Javascript</a> <a class="tag tag--primary tag--small t-link" href="/tags/程式筆記/">程式筆記</a>
 
             </div>
         
@@ -466,14 +385,11 @@
         <ul class="post-actions post-action-nav">
             <li class="post-action">
                 
-                    
-                <a
-                    class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/11/01/js30-01/"
-                    data-tooltip="JS30 Day01 Javascript Drum Kit"
-                    aria-label="上一篇: JS30 Day01 Javascript Drum Kit"
-                >
-                    
+                    <a
+                        class="post-action-btn btn btn--disabled"
+                        aria-hidden="true"
+                    >
+                        
                         <i class="fa fa-angle-left" aria-hidden="true"></i>
                         <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
                     </a>
@@ -483,9 +399,9 @@
                     
                 <a
                     class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/10/27/restful_api/"
-                    data-tooltip="RESTful API"
-                    aria-label="下一篇: RESTful API"
+                    href="/2019/12/01/js30-06/"
+                    data-tooltip="JS30 Day06 Ajax Type Ahead"
+                    aria-label="下一篇: JS30 Day06 Ajax Type Ahead"
                 >
                     
                         <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
@@ -510,7 +426,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/31/rails_orm/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/12/03/js30-07/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -523,7 +439,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/31/rails_orm/"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/12/03/js30-07/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -536,7 +452,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/10/31/rails_orm/"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/12/03/js30-07/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -594,14 +510,11 @@
         <ul class="post-actions post-action-nav">
             <li class="post-action">
                 
-                    
-                <a
-                    class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/11/01/js30-01/"
-                    data-tooltip="JS30 Day01 Javascript Drum Kit"
-                    aria-label="上一篇: JS30 Day01 Javascript Drum Kit"
-                >
-                    
+                    <a
+                        class="post-action-btn btn btn--disabled"
+                        aria-hidden="true"
+                    >
+                        
                         <i class="fa fa-angle-left" aria-hidden="true"></i>
                         <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
                     </a>
@@ -611,9 +524,9 @@
                     
                 <a
                     class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/10/27/restful_api/"
-                    data-tooltip="RESTful API"
-                    aria-label="下一篇: RESTful API"
+                    href="/2019/12/01/js30-06/"
+                    data-tooltip="JS30 Day06 Ajax Type Ahead"
+                    aria-label="下一篇: JS30 Day06 Ajax Type Ahead"
                 >
                     
                         <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
@@ -638,7 +551,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/31/rails_orm/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/12/03/js30-07/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -651,7 +564,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/31/rails_orm/"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/12/03/js30-07/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -664,7 +577,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/10/31/rails_orm/"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/12/03/js30-07/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -708,7 +621,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/10/31/rails_orm/"
+                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/12/03/js30-07/"
                         aria-label="分享到 Facebook"
                     >
                         <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
@@ -721,7 +634,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/10/31/rails_orm/"
+                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/12/03/js30-07/"
                         aria-label="分享到 Twitter"
                     >
                         <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
@@ -734,7 +647,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://plus.google.com/share?url=https://chaichai.site/2019/10/31/rails_orm/"
+                        href="https://plus.google.com/share?url=https://chaichai.site/2019/12/03/js30-07/"
                         aria-label="分享到 Google+"
                     >
                         <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
@@ -1165,7 +1078,7 @@
               repo: 'Chai0710.github.io',
               owner: 'Chai0710',
               admin: ['Chai0710'],
-              id: '2019/10/31/rails_orm/',
+              id: '2019/12/03/js30-07/',
               ...{"language":"zh-tw","perPage":10,"distractionFreeMode":false,"enableHotKey":true,"pagerDirection":"first"}
             }).render('gitalk')
           })()
