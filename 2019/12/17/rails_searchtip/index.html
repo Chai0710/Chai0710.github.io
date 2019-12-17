@@ -41,7 +41,7 @@
     title="RSS"
     href="/atom.xml"
   />
-   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～\n\n\n\nRails search tip若需要在 rails console 查詢某個 model 在指定的一個月之間所建立的資料，可以這麼做：\n\n記得先將時區改成所在位置，不然可能會有時區的問題\n\n1Time_zone = \"Taipei\"\n\n\n用 to_date 方法將字串轉換成日期\n\n1234start_date = \"2019-12-01\".to_date# =&gt; Sun, 01 Dec 2019end_date = \"2019-12-31\".to_date# =&gt; Mon, 31 Dec 2019\n\n\n用 where 查詢，兩個時間之間可以用 Ruby的語法  .. 表示範圍\n\n1Task.where(created_at: start_date..end_date)\n\n\n\n＊若想要查詢某天到目前所建立的所有資料，可以用 Time.now：\n12some_date = \"2019-11-14\"Task.where(created_at: some_date..Time.now)\n\n","dateCreated":"2019-12-17T00:00:00+08:00","dateModified":"2019-12-17T22:41:22+08:00","datePublished":"2019-12-17T00:00:00+08:00","description":"這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～","headline":"Rails Search Tip","image":["https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400","https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/12/17/rails_searchtip/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/12/17/rails_searchtip/","keywords":"Ruby, Rails, 程式筆記","thumbnailUrl":"https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400"}</script> <meta name="description" content="這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～">
+   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～\n\n\n\nRails search tip若需要在 rails console 查詢某個 model 在指定的一個月之間所建立的資料，可以這麼做：\n\n記得先將時區改成所在位置，不然可能會有時區的問題\n\n1Time_zone = \"Taipei\"\n\n\n用 to_date 方法將字串轉換成日期\n\n1234start_date = \"2019-12-01\".to_date# =&gt; Sun, 01 Dec 2019end_date = \"2019-12-31\".to_date# =&gt; Mon, 31 Dec 2019\n\n\n用 where 查詢，兩個時間之間可以用 Ruby的語法  .. 表示範圍\n\n1Task.where(created_at: start_date..end_date)\n\n\n\n＊若想要查詢某天到目前所建立的所有資料，可以用 Time.now：\n12some_date = \"2019-11-14\"Task.where(created_at: some_date..Time.now)\n\n","dateCreated":"2019-12-17T00:00:00+08:00","dateModified":"2019-12-17T22:43:03+08:00","datePublished":"2019-12-17T00:00:00+08:00","description":"這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～","headline":"Rails Search Tip","image":["https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400","https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/12/17/rails_searchtip/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/12/17/rails_searchtip/","keywords":"Ruby, Rails, 程式筆記","thumbnailUrl":"https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400"}</script> <meta name="description" content="這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～">
 <meta name="keywords" content="Ruby,Rails,程式筆記">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Rails Search Tip">
@@ -49,7 +49,7 @@
 <meta property="og:site_name" content="Chai&#39;s Blog">
 <meta property="og:description" content="這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:updated_time" content="2019-12-17T14:41:22.066Z">
+<meta property="og:updated_time" content="2019-12-17T14:43:03.514Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Rails Search Tip">
 <meta name="twitter:description" content="這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～">     
@@ -344,7 +344,7 @@
 </ol>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">start_date = <span class="string">"2019-12-01"</span>.to_date</span><br><span class="line"><span class="comment"># =&gt; Sun, 01 Dec 2019</span></span><br><span class="line">end_date = <span class="string">"2019-12-31"</span>.to_date</span><br><span class="line"><span class="comment"># =&gt; Mon, 31 Dec 2019</span></span><br></pre></td></tr></table></figure>
 
-<ol start="2">
+<ol start="3">
 <li>用 <code>where</code> 查詢，兩個時間之間可以用 Ruby的語法  <code>..</code> 表示範圍</li>
 </ol>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Task.where(<span class="symbol">created_at:</span> start_date..end_date)</span><br></pre></td></tr></table></figure>
@@ -405,7 +405,7 @@
             <a
                 class="post-action-btn btn btn--default btn-open-shareoptions"
                 href="#btn-open-shareoptions"
-                aria-label="Diesen Beitrag teilen"
+                aria-label="Share this post"
             >
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
@@ -456,7 +456,7 @@
                     <a
                         class="post-action-btn btn btn--default"
                         href="#gitalk"
-                        aria-label="Kommentieren"
+                        aria-label="Leave a comment"
                     >
                         <i class="fa fa-comment"></i>
                     </a>
@@ -465,7 +465,7 @@
         
         <li class="post-action">
             
-                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Back to top">
             
                 <i class="fa fa-list" aria-hidden="true"></i>
             </a>
@@ -530,7 +530,7 @@
             <a
                 class="post-action-btn btn btn--default btn-open-shareoptions"
                 href="#btn-open-shareoptions"
-                aria-label="Diesen Beitrag teilen"
+                aria-label="Share this post"
             >
                 <i class="fa fa-share-alt" aria-hidden="true"></i>
             </a>
@@ -581,7 +581,7 @@
                     <a
                         class="post-action-btn btn btn--default"
                         href="#gitalk"
-                        aria-label="Kommentieren"
+                        aria-label="Leave a comment"
                     >
                         <i class="fa fa-comment"></i>
                     </a>
@@ -590,7 +590,7 @@
         
         <li class="post-action">
             
-                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Back to top">
             
                 <i class="fa fa-list" aria-hidden="true"></i>
             </a>
