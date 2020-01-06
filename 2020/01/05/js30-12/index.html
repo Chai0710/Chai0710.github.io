@@ -25,7 +25,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="generator" content="Chai&#39;s Blog" />
-  <title>JS30 Day06 Ajax Type Ahead - Chai&#39;s Blog</title>
+  <title>JS30 Day12 Key Sequence Detection - Chai&#39;s Blog</title>
   <meta name="author" content="Chai Wei-Li" />
   
   <meta name="keywords" content="Ruby on Rails,Programmer," />
@@ -41,18 +41,18 @@
     title="RSS"
     href="/atom.xml"
   />
-   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"JS30 Day06這一課講到了抓API的方式&amp;正規表達式，兩者都是前端必學的重點。\n\n\n\nAjax Type Ahead完成目標\n功能\n列出符合關鍵字的項目\n\n\n畫面\n列出符合關鍵字的項目\n將關鍵字的部份 mark 起來\n顯示該項目的「人口」數\n\n\n\n\n\n\n\n\nindex-START.html12345678910111213141516171819202122&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;  &lt;meta charset=\"UTF-8\"&gt;  &lt;title&gt;Type Ahead 👀&lt;/title&gt;  &lt;link rel=\"stylesheet\" href=\"style.css\"&gt;&lt;/head&gt;&lt;body&gt;  &lt;form class=\"search-form\"&gt;    &lt;input type=\"text\" class=\"search\" placeholder=\"City or State\"&gt;    &lt;ul class=\"suggestions\"&gt;      &lt;li&gt;Filter for a city&lt;/li&gt;      &lt;li&gt;or a state&lt;/li&gt;    &lt;/ul&gt;  &lt;/form&gt;&lt;script&gt;const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;\n\n\n\nindex-FINISHED.html12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;  &lt;meta charset=\"UTF-8\"&gt;  &lt;title&gt;Type Ahead 👀&lt;/title&gt;  &lt;link rel=\"stylesheet\" href=\"style.css\"&gt;&lt;/head&gt;&lt;body&gt;  &lt;form class=\"search-form\"&gt;    &lt;input type=\"text\" class=\"search\" placeholder=\"City or State\"&gt;    &lt;ul class=\"suggestions\"&gt;      &lt;li&gt;Filter for a city&lt;/li&gt;      &lt;li&gt;or a state&lt;/li&gt;    &lt;/ul&gt;  &lt;/form&gt;&lt;script&gt;const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';const cities = [];fetch(endpoint)  .then(blob =&gt; blob.json())  .then(data =&gt; cities.push(...data));function findMatches(wordToMatch, cities) &#123;  return cities.filter(place =&gt; &#123;    // here we need to figure out if the city or state matches what was searched    const regex = new RegExp(wordToMatch, 'gi');    return place.city.match(regex) || place.state.match(regex)  &#125;);&#125;function numberWithCommas(x) &#123;  return x.toString().replace(/\\B(?=(\\d&#123;3&#125;)+(?!\\d))/g, ',');&#125;function displayMatches() &#123;  const matchArray = findMatches(this.value, cities);  const html = matchArray.map(place =&gt; &#123;    const regex = new RegExp(this.value, 'gi');    const cityName = place.city.replace(regex, `&lt;span class=\"hl\"&gt;$&#123;this.value&#125;&lt;/span&gt;`);    const stateName = place.state.replace(regex, `&lt;span class=\"hl\"&gt;$&#123;this.value&#125;&lt;/span&gt;`);    return `      &lt;li&gt;        &lt;span class=\"name\"&gt;$&#123;cityName&#125;, $&#123;stateName&#125;&lt;/span&gt;        &lt;span class=\"population\"&gt;$&#123;numberWithCommas(place.population)&#125;&lt;/span&gt;      &lt;/li&gt;    `;  &#125;).join('');  suggestions.innerHTML = html;&#125;const searchInput = document.querySelector('.search');const suggestions = document.querySelector('.suggestions');searchInput.addEventListener('change', displayMatches);searchInput.addEventListener('keyup', displayMatches);&lt;/script&gt;  &lt;/body&gt;&lt;/html&gt;\n\n\n\n\n\n\n學習筆記\n\n★ fetch()fetch() 是一個全域的方法，包含了需要 fetch 的網址和對應的屬性設定 ( 例如 method、headers、mode、body…等，最基本的寫法屬性不一定要填 )，執行之後會送出 Request，如果得到回應就會回傳帶有 Response 的 Promise 物件，使用 then 將回傳值傳遞下去。\n語法：\n123456fetch('網址').then(function(response) &#123;    // 處理 response&#125;).catch(function(err) &#123;    // 錯誤處理&#125;);\n\n\n\n\nfetch 的 request 屬性\n\n\n\n屬性\n設定值\n\n\n\nurl\n第一個參數，一定要填的項目，代表需要 fetch 對象的網址\n\n\nmethod\nGET、POST、PUT、DELETE、HEAD ( 預設 GET )\n\n\nheaders\n要求相關的 Headers 物件 ( 預設 {} )\n\n\nmode\ncors、no-cors、same-origin、navigate ( 預設 cors )\n\n\nreferrer\nno-referrer、client 或某個網址 ( 預設 client )\n\n\ncredentials\nomit、same-origin、include ( 預設 omit )\n\n\nredirect\nfollow、error、manual ( 預設 manual )\n\n\ncache\ndefault、no-store、reload、no-cache、force-cache ( 預設 default )\n\n\nbody\n要加到要求中的內容 ( 如果 method 為 GET 或 HEAD 則不設定 )\n\n\n\n\nfetch 的 response 屬性\n\n\n\n屬性\n設定值\n\n\n\nheaders\n包含與 response 相關的 Headers 物件\n\n\nok\n成功回傳 true，不成功回傳 false\n\n\nstatus\n狀態代碼，成功為 200\n\n\nstatusText\n狀態文字，成功為 ok\n\n\ntype\nresponse 的類型，例如 basic、cors…等\n\n\nurl\nresponse 的 url\n\n\n\n\nfetch 的 response 方法\n\n\n\n方法\n設定值\n\n\n\njson()\n返回 Promise，resolves 是 JSON 物件\n\n\ntext()\n返回 Promise，resolves 是 text string\n\n\nblob()\n返回 Promise，resolves 是 blob ( 非結構化物件資料，例如文字或二進位資料 )\n\n\narrayBuffer()\n返回 Promise，resolves 是 ArrayBuffer ( 有多少 bytes )\n\n\nformData()\n返回 Promise，resolves 是 formData ( 表單資料對應的的 Key 或 Value )\n\n\nclone()\n建立 Response 的複製物件\n\n\nerror()\n返回 Response 的錯誤物件\n\n\n\n\n\n 詳見這篇文章，寫得很清楚：https://www.oxxostudio.tw/articles/201908/js-fetch.html \n\n\n\n\n\n★ RegExp()RegExp() 物件表達正規表達式（regular expression）。在 JavaScript 中，正規表達式也是物件。\n語法：\n1new RegExp( pattern , attributes );\n\n\npattern 是一個字符串，指定了正規表達式的模式；\nattributes 是一個可選的字符串，包含以下屬性：\ng：全域匹配（查找所有匹配而非在找到第一個匹配後停止）\ni：不區分大小寫匹配\nm：多行匹配\n\n\n\n\n\n\n建立正規表達式的兩種方法：\n\n使用正規表達式字面值（regular expression literal），包含兩個 / 字元之間的模式：\n1var reg = /ab+c/;\n\n正規表達式字面值在 script 載入時會被編譯，當正規表達式為定值時，使用此方法可獲得較佳效能。\n\n呼叫 RegExp 物件的建構函式：\n1var reg2 = new RegExp('ab+c');\n\n使用建構子函式供即時編譯正則表達式，當 pattern 會異動、事先未知匹配 pattern、或者從其他地方取得時，建議使用。\n\n\n\n\n\n\n\nJavaScript 常見的正規表達式函式\n\nRegExp.prototype.test()：搜尋字串中是否有符合的部分，回傳 true/false。\n\nRegExp.prototype.exec()：以陣列回傳字串中匹配到的部分，否則回傳 null。\n\nString.prototype.match()：以陣列回傳字串中匹配到的部分，否則回傳 null。\n本課中使用的方法。\n範例：\n12345\" chai Chai chaii \".match(/cha\\w+/);// [\"chai\", index: 1, input: \" chai Chai chaii \", groups: undefined]\" chai Chai chaii \".match(/cha\\w+/gi);// [\"chai\", \"Chai\", \"chaii\"]\n\nString.prototype.replace()：尋找字串中匹配的部分，並取代之。\n\nString.prototype.search()：尋找字串中是否有符合的部分，有的話回傳 index，否則回傳 -1。 另外，search() 會忽視 g，永遠只能搜尋第一個。\n\nString.prototype.split()：在字串根據匹配到的項目拆成陣列。\n\n\n\n這裡有更多使用方式：https://www.w3school.com.cn/js/jsref_obj_regexp.asp\n\n\n\n","dateCreated":"2019-12-01T00:00:00+08:00","dateModified":"2019-12-31T17:05:59+08:00","datePublished":"2019-12-01T00:00:00+08:00","description":"JS30 Day06這一課講到了抓API的方式&amp;正規表達式，兩者都是前端必學的重點。","headline":"JS30 Day06 Ajax Type Ahead","image":["https://lh3.googleusercontent.com/3jxbKzTpOzg4W85qhG2hBty4_n8ILgq8YAvNcDgFtDexK_nMcLU7VujJBlfaq6zsb9GtFQ0ILqNzIzFasNYtFIhS_x0_1yHNhS6qIBhYqMlrgR77E41qDvQxXXj5Yh2qgjQAflI7NA=w2400","https://lh3.googleusercontent.com/3jxbKzTpOzg4W85qhG2hBty4_n8ILgq8YAvNcDgFtDexK_nMcLU7VujJBlfaq6zsb9GtFQ0ILqNzIzFasNYtFIhS_x0_1yHNhS6qIBhYqMlrgR77E41qDvQxXXj5Yh2qgjQAflI7NA=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/12/01/js30-06/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/12/01/js30-06/","keywords":"程式筆記, Javascript, JS30","thumbnailUrl":"https://lh3.googleusercontent.com/3jxbKzTpOzg4W85qhG2hBty4_n8ILgq8YAvNcDgFtDexK_nMcLU7VujJBlfaq6zsb9GtFQ0ILqNzIzFasNYtFIhS_x0_1yHNhS6qIBhYqMlrgR77E41qDvQxXXj5Yh2qgjQAflI7NA=w2400"}</script> <meta name="description" content="JS30 Day06這一課講到了抓API的方式&amp;amp;正規表達式，兩者都是前端必學的重點。">
+   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"JS30 Day12\n這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。\n\n\n\n\nKey Sequence Detection完成目標\n做一個打密碼出現彩蛋的功能。\n\n像是在這個網站：https://www.buzzfeed.com/\n輸入「上、上、下、下、左、右、左、右、Ｂ、Ａ」之後會出現彩蛋\n\n\n\n\n\n\n\n\n\nindex-START.html123456789101112&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;  &lt;meta charset=\"UTF-8\"&gt;  &lt;title&gt;Key Detection&lt;/title&gt;  &lt;script type=\"text/javascript\" src=\"https://www.cornify.com/js/cornify.js\"&gt;&lt;/script&gt;&lt;/head&gt;&lt;body&gt;&lt;script&gt;&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;\n\n\n\nindex-FINISHED.html12345678910111213141516171819202122232425&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;  &lt;meta charset=\"UTF-8\"&gt;  &lt;title&gt;Key Detection&lt;/title&gt;  &lt;script type=\"text/javascript\" src=\"https://www.cornify.com/js/cornify.js\"&gt;&lt;/script&gt;&lt;/head&gt;&lt;body&gt;&lt;script&gt;const pressed = [];const secretCode = 'wesbos';window.addEventListener('keyup', (e) =&gt; &#123;  console.log(e.key);  pressed.push(e.key);  pressed.splice(-secretCode.length - 1, pressed.length - secretCode.length);  if (pressed.join('').includes(secretCode)) &#123;    console.log('DING DING!');    cornify_add();  &#125;  console.log(pressed);&#125;);&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;\n\n\n\n\n\n\n學習筆記\n\n★ KeyboardEvent.keykey 事件在按下按鍵時返回鍵盤按鈕的字串，該屬性的返回值可以是：\n\n單個字母（如”a”、”W”、”4”、”+” 、”$”）\n多個字母（如”F1”、”Enter”、”HOME”、”CAPS LOCK”）\n\n如果想查看是否按下了”ALT”、 “CTRL”、”META”或”SHIFT”鍵，可使用 altKey、ctrlKey、metaKey、shiftKey 屬性。\n範例：\n123window.addEventListener('keyup', (e) =&gt; &#123;    console.log(e.key);&#125;)\n\n\n\nkey、keydown、keypress、keyup\nKeyboardEvent.key按鍵按下後，回傳一個鍵盤值。\n\nKeyboardEvent.Events.keydownkeydown 按鍵按下時觸發。\n\nKeyboardEvent.Events.keypresskeypress 按鍵按下時觸發。按鍵不是特殊鍵（ modifier key 如：Ctrl 、Alt 等）。\n\nKeyboardEvent.Events.keyupkeyup 當按鍵放開時觸發。\n\n\n\n\n★ Array.includes()includes() 方法會判斷陣列是否包含特定的元素，並回傳布林值。\n語法：arr.includes(searchElement[, fromIndex])\n\nsearchElement: 要搜尋的元素。\nfromIndex: 要於此陣列中開始搜尋 searchElement 的位置。如為負數值，則自 array.length + fromIndex 開始向後搜尋。預設值為 0。\n\n範例：\n12345678910const number = [1, 2, 3];console.log(number.includes(2));// trueconst me = ['Chai', 'Choo', 'Chia'];console.log(me.includes('Chai'));// trueconsole.log(me.includes('Ch'));// false\n\n\n\n★ Array.push()push() 方法會添加一個或多個元素至陣列的末端，並且回傳陣列的新長度。\n＊注意：回傳的不是新陣列，而是新陣列的長度，此方法會直接改變原本的 Array。\n範例：\n1234567891011const friends = ['Annie', 'KAWA', 'WeiWei'];const count = friends.push('Anthony');console.log(count);// 4console.log(friends);// [\"Annie\", \"KAWA\", \"WeiWei\", \"Anthony\"]friends.push('Chester', 'Louis', 'River');console.log(friends);// [\"Annie\", \"KAWA\", \"WeiWei\", \"Anthony\", \"Chester\", \"Louis\", \"River\"]\n\n\n\n★ Array.shift()shift() 方法會移除並回傳陣列的第一個元素。\n＊注意：回傳的是被移除的那個第一個元素，此方法會直接改變原本的 Array。\n＊若要刪除並返回數組的最後一個元素，可以使用 pop()。\n範例：\n1234567const character = ['a', 'b', 'c'];const firstElement = character.shift();console.log(character);// [\"b\", \"c\"]console.log(firstElement);// \"a\"\n\n","dateCreated":"2020-01-05T00:00:00+08:00","dateModified":"2020-01-06T23:40:37+08:00","datePublished":"2020-01-05T00:00:00+08:00","description":"JS30 Day12\n這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。","headline":"JS30 Day12 Key Sequence Detection","image":["https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400","https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2020/01/05/js30-12/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2020/01/05/js30-12/","keywords":"程式筆記, Javascript, JS30","thumbnailUrl":"https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400"}</script> <meta name="description" content="JS30 Day12 這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。">
 <meta name="keywords" content="程式筆記,Javascript,JS30">
 <meta property="og:type" content="blog">
-<meta property="og:title" content="JS30 Day06 Ajax Type Ahead">
-<meta property="og:url" content="https://chaichai.site/2019/12/01/js30-06/index.html">
+<meta property="og:title" content="JS30 Day12 Key Sequence Detection">
+<meta property="og:url" content="https://chaichai.site/2020/01/05/js30-12/index.html">
 <meta property="og:site_name" content="Chai&#39;s Blog">
-<meta property="og:description" content="JS30 Day06這一課講到了抓API的方式&amp;amp;正規表達式，兩者都是前端必學的重點。">
+<meta property="og:description" content="JS30 Day12 這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:updated_time" content="2019-12-31T09:05:59.351Z">
+<meta property="og:updated_time" content="2020-01-06T15:40:37.666Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="JS30 Day06 Ajax Type Ahead">
-<meta name="twitter:description" content="JS30 Day06這一課講到了抓API的方式&amp;amp;正規表達式，兩者都是前端必學的重點。">     
+<meta name="twitter:title" content="JS30 Day12 Key Sequence Detection">
+<meta name="twitter:description" content="JS30 Day12 這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。">     
   <meta
     property="og:image"
     content="https://chaichai.site/assets/images/chai2.jpg"
@@ -60,24 +60,24 @@
    
   <meta
     property="og:image"
-    content="https://lh3.googleusercontent.com/3jxbKzTpOzg4W85qhG2hBty4_n8ILgq8YAvNcDgFtDexK_nMcLU7VujJBlfaq6zsb9GtFQ0ILqNzIzFasNYtFIhS_x0_1yHNhS6qIBhYqMlrgR77E41qDvQxXXj5Yh2qgjQAflI7NA=w2400"
+    content="https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400"
   />
   <meta
     class="swiftype"
     name="image"
     data-type="enum"
-    content="https://lh3.googleusercontent.com/3jxbKzTpOzg4W85qhG2hBty4_n8ILgq8YAvNcDgFtDexK_nMcLU7VujJBlfaq6zsb9GtFQ0ILqNzIzFasNYtFIhS_x0_1yHNhS6qIBhYqMlrgR77E41qDvQxXXj5Yh2qgjQAflI7NA=w2400"
+    content="https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400"
   />
    
   <meta
     property="og:image"
-    content="https://lh3.googleusercontent.com/3jxbKzTpOzg4W85qhG2hBty4_n8ILgq8YAvNcDgFtDexK_nMcLU7VujJBlfaq6zsb9GtFQ0ILqNzIzFasNYtFIhS_x0_1yHNhS6qIBhYqMlrgR77E41qDvQxXXj5Yh2qgjQAflI7NA=w2400"
+    content="https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400"
   />
   <meta
     class="swiftype"
     name="image"
     data-type="enum"
-    content="https://lh3.googleusercontent.com/3jxbKzTpOzg4W85qhG2hBty4_n8ILgq8YAvNcDgFtDexK_nMcLU7VujJBlfaq6zsb9GtFQ0ILqNzIzFasNYtFIhS_x0_1yHNhS6qIBhYqMlrgR77E41qDvQxXXj5Yh2qgjQAflI7NA=w2400"
+    content="https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400"
   />
    
   <!--STYLES-->
@@ -288,20 +288,20 @@
         <div class="post-header-cover
                     text-center
                     post-header-cover--full"
-             style="background-image:url('https://lh3.googleusercontent.com/3jxbKzTpOzg4W85qhG2hBty4_n8ILgq8YAvNcDgFtDexK_nMcLU7VujJBlfaq6zsb9GtFQ0ILqNzIzFasNYtFIhS_x0_1yHNhS6qIBhYqMlrgR77E41qDvQxXXj5Yh2qgjQAflI7NA=w2400');"
+             style="background-image:url('https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400');"
              data-behavior="4">
             
                 <div class="post-header main-content-wrap text-center">
     
         <h1 class="post-title">
-            JS30 Day06 Ajax Type Ahead
+            JS30 Day12 Key Sequence Detection
         </h1>
     
     
         <div class="post-meta">
-    <time datetime="2019-12-01T00:00:00+08:00">
+    <time datetime="2020-01-05T00:00:00+08:00">
 	
-		    12月 01, 2019
+		    1月 05, 2020
     	
     </time>
     
@@ -329,19 +329,18 @@
     
     <div class="post-content markdown">
         <div class="main-content-wrap">
-            <p>JS30 Day06<br>這一課講到了抓API的方式&amp;正規表達式，兩者都是前端必學的重點。</p>
+            <p>JS30 Day12</p>
+<p>這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。</p>
 <a id="more"></a>
 
+
 <hr>
-<h1 id="Ajax-Type-Ahead"><a href="#Ajax-Type-Ahead" class="headerlink" title="Ajax Type Ahead"></a>Ajax Type Ahead</h1><h2 id="完成目標"><a href="#完成目標" class="headerlink" title="完成目標"></a>完成目標</h2><ul>
-<li>功能<ul>
-<li>列出符合關鍵字的項目</li>
-</ul>
+<h1 id="Key-Sequence-Detection"><a href="#Key-Sequence-Detection" class="headerlink" title="Key Sequence Detection"></a>Key Sequence Detection</h1><h2 id="完成目標"><a href="#完成目標" class="headerlink" title="完成目標"></a>完成目標</h2><ul>
+<li><p>做一個打密碼出現彩蛋的功能。</p>
+<ul>
+<li><p>像是在這個網站：<a href="https://www.buzzfeed.com/" target="_blank" rel="noopener">https://www.buzzfeed.com/</a></p>
+<p>輸入「上、上、下、下、左、右、左、右、Ｂ、Ａ」之後會出現彩蛋</p>
 </li>
-<li>畫面<ul>
-<li>列出符合關鍵字的項目</li>
-<li>將關鍵字的部份 mark 起來</li>
-<li>顯示該項目的「人口」數</li>
 </ul>
 </li>
 </ul>
@@ -350,11 +349,11 @@
 <hr>
 <br>
 
-<h3 id="index-START-html"><a href="#index-START-html" class="headerlink" title="index-START.html"></a>index-START.html</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Type Ahead 👀<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"style.css"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">form</span> <span class="attr">class</span>=<span class="string">"search-form"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"search"</span> <span class="attr">placeholder</span>=<span class="string">"City or State"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"suggestions"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span>Filter for a city<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span>or a state<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="keyword">const</span> endpoint = <span class="string">'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json'</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="index-START-html"><a href="#index-START-html" class="headerlink" title="index-START.html"></a>index-START.html</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Key Detection<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"https://www.cornify.com/js/cornify.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <br>
 
-<h3 id="index-FINISHED-html"><a href="#index-FINISHED-html" class="headerlink" title="index-FINISHED.html"></a>index-FINISHED.html</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Type Ahead 👀<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"style.css"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">form</span> <span class="attr">class</span>=<span class="string">"search-form"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">class</span>=<span class="string">"search"</span> <span class="attr">placeholder</span>=<span class="string">"City or State"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"suggestions"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span>Filter for a city<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span>&gt;</span>or a state<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="keyword">const</span> endpoint = <span class="string">'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json'</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="keyword">const</span> cities = [];</span></span><br><span class="line">fetch(endpoint)</span><br><span class="line"><span class="javascript">  .then(<span class="function"><span class="params">blob</span> =&gt;</span> blob.json())</span></span><br><span class="line"><span class="javascript">  .then(<span class="function"><span class="params">data</span> =&gt;</span> cities.push(...data));</span></span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="function"><span class="keyword">function</span> <span class="title">findMatches</span>(<span class="params">wordToMatch, cities</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">return</span> cities.filter(<span class="function"><span class="params">place</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">    <span class="comment">// here we need to figure out if the city or state matches what was searched</span></span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> regex = <span class="keyword">new</span> <span class="built_in">RegExp</span>(wordToMatch, <span class="string">'gi'</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> place.city.match(regex) || place.state.match(regex)</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="function"><span class="keyword">function</span> <span class="title">numberWithCommas</span>(<span class="params">x</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">return</span> x.toString().replace(<span class="regexp">/\B(?=(\d&#123;3&#125;)+(?!\d))/g</span>, <span class="string">','</span>);</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="function"><span class="keyword">function</span> <span class="title">displayMatches</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> matchArray = findMatches(<span class="keyword">this</span>.value, cities);</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> html = matchArray.map(<span class="function"><span class="params">place</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> regex = <span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="keyword">this</span>.value, <span class="string">'gi'</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> cityName = place.city.replace(regex, <span class="string">`&lt;span class="hl"&gt;<span class="subst">$&#123;<span class="keyword">this</span>.value&#125;</span>&lt;/span&gt;`</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> stateName = place.state.replace(regex, <span class="string">`&lt;span class="hl"&gt;<span class="subst">$&#123;<span class="keyword">this</span>.value&#125;</span>&lt;/span&gt;`</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> <span class="string">`</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">li</span>&gt;</span></span></span><br><span class="line"><span class="javascript">        &lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"name"</span>&gt;$&#123;cityName&#125;, $&#123;stateName&#125;&lt;<span class="regexp">/span&gt;</span></span></span><br><span class="line"><span class="javascript">        &lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"population"</span>&gt;$&#123;numberWithCommas(place.population)&#125;&lt;<span class="regexp">/span&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">    `;</span><br><span class="line"><span class="javascript">  &#125;).join(<span class="string">''</span>);</span></span><br><span class="line">  suggestions.innerHTML = html;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="keyword">const</span> searchInput = <span class="built_in">document</span>.querySelector(<span class="string">'.search'</span>);</span></span><br><span class="line"><span class="javascript"><span class="keyword">const</span> suggestions = <span class="built_in">document</span>.querySelector(<span class="string">'.suggestions'</span>);</span></span><br><span class="line"></span><br><span class="line"><span class="javascript">searchInput.addEventListener(<span class="string">'change'</span>, displayMatches);</span></span><br><span class="line"><span class="javascript">searchInput.addEventListener(<span class="string">'keyup'</span>, displayMatches);</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="index-FINISHED-html"><a href="#index-FINISHED-html" class="headerlink" title="index-FINISHED.html"></a>index-FINISHED.html</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Key Detection<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"https://www.cornify.com/js/cornify.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="keyword">const</span> pressed = [];</span></span><br><span class="line"><span class="javascript"><span class="keyword">const</span> secretCode = <span class="string">'wesbos'</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="built_in">window</span>.addEventListener(<span class="string">'keyup'</span>, (e) =&gt; &#123;</span></span><br><span class="line"><span class="javascript">  <span class="built_in">console</span>.log(e.key);</span></span><br><span class="line">  pressed.push(e.key);</span><br><span class="line">  pressed.splice(-secretCode.length - 1, pressed.length - secretCode.length);</span><br><span class="line"><span class="javascript">  <span class="keyword">if</span> (pressed.join(<span class="string">''</span>).includes(secretCode)) &#123;</span></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="string">'DING DING!'</span>);</span></span><br><span class="line">    cornify_add();</span><br><span class="line">  &#125;</span><br><span class="line"><span class="javascript">  <span class="built_in">console</span>.log(pressed);</span></span><br><span class="line">&#125;);</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <br>
 
@@ -363,198 +362,53 @@
 
 <h2 id="學習筆記"><a href="#學習筆記" class="headerlink" title="學習筆記"></a>學習筆記</h2><br>
 
-<h4 id="★-fetch"><a href="#★-fetch" class="headerlink" title="★ fetch()"></a>★ fetch()</h4><p><code>fetch()</code> 是一個全域的方法，包含了需要 fetch 的網址和對應的屬性設定 ( 例如 method、headers、mode、body…等，最基本的寫法屬性不一定要填 )，執行之後會送出 Request，如果得到回應就會回傳帶有 Response 的 Promise 物件，使用 then 將回傳值傳遞下去。</p>
-<p>語法：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">fetch(<span class="string">'網址'</span>)</span><br><span class="line">.then(<span class="function"><span class="keyword">function</span>(<span class="params">response</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 處理 response</span></span><br><span class="line">&#125;).catch(<span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 錯誤處理</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<br>
-
+<h4 id="★-KeyboardEvent-key"><a href="#★-KeyboardEvent-key" class="headerlink" title="★ KeyboardEvent.key"></a>★ KeyboardEvent.key</h4><p>key 事件在按下按鍵時返回鍵盤按鈕的字串，該屬性的返回值可以是：</p>
 <ul>
-<li><p>fetch 的 request 屬性</p>
-<table>
-<thead>
-<tr>
-<th>屬性</th>
-<th>設定值</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><em>url</em></td>
-<td>第一個參數，一定要填的項目，代表需要 fetch 對象的網址</td>
-</tr>
-<tr>
-<td><em>method</em></td>
-<td>GET、POST、PUT、DELETE、HEAD ( 預設 GET )</td>
-</tr>
-<tr>
-<td><em>headers</em></td>
-<td>要求相關的 Headers 物件 ( 預設 {} )</td>
-</tr>
-<tr>
-<td><em>mode</em></td>
-<td>cors、no-cors、same-origin、navigate ( 預設 cors )</td>
-</tr>
-<tr>
-<td><em>referrer</em></td>
-<td>no-referrer、client 或某個網址 ( 預設 client )</td>
-</tr>
-<tr>
-<td><em>credentials</em></td>
-<td>omit、same-origin、include ( 預設 omit )</td>
-</tr>
-<tr>
-<td><em>redirect</em></td>
-<td>follow、error、manual ( 預設 manual )</td>
-</tr>
-<tr>
-<td><em>cache</em></td>
-<td>default、no-store、reload、no-cache、force-cache ( 預設 default )</td>
-</tr>
-<tr>
-<td><em>body</em></td>
-<td>要加到要求中的內容 ( 如果 method 為 GET 或 HEAD 則不設定 )</td>
-</tr>
-</tbody></table>
-<br>
-</li>
-<li><p>fetch 的 response 屬性</p>
-<table>
-<thead>
-<tr>
-<th>屬性</th>
-<th>設定值</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><em>headers</em></td>
-<td>包含與 response 相關的 Headers 物件</td>
-</tr>
-<tr>
-<td><em>ok</em></td>
-<td>成功回傳 true，不成功回傳 false</td>
-</tr>
-<tr>
-<td><em>status</em></td>
-<td>狀態代碼，成功為 200</td>
-</tr>
-<tr>
-<td><em>statusText</em></td>
-<td>狀態文字，成功為 ok</td>
-</tr>
-<tr>
-<td><em>type</em></td>
-<td>response 的類型，例如 basic、cors…等</td>
-</tr>
-<tr>
-<td><em>url</em></td>
-<td>response 的 url</td>
-</tr>
-</tbody></table>
-<br>
-</li>
-<li><p>fetch 的 response 方法</p>
-<table>
-<thead>
-<tr>
-<th>方法</th>
-<th>設定值</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><em>json()</em></td>
-<td>返回 Promise，resolves 是 JSON 物件</td>
-</tr>
-<tr>
-<td><em>text()</em></td>
-<td>返回 Promise，resolves 是 text string</td>
-</tr>
-<tr>
-<td><em>blob()</em></td>
-<td>返回 Promise，resolves 是 blob ( 非結構化物件資料，例如文字或二進位資料 )</td>
-</tr>
-<tr>
-<td><em>arrayBuffer()</em></td>
-<td>返回 Promise，resolves 是 ArrayBuffer ( 有多少 bytes )</td>
-</tr>
-<tr>
-<td><em>formData()</em></td>
-<td>返回 Promise，resolves 是 formData ( 表單資料對應的的 Key 或 Value )</td>
-</tr>
-<tr>
-<td><em>clone()</em></td>
-<td>建立 Response 的複製物件</td>
-</tr>
-<tr>
-<td><em>error()</em></td>
-<td>返回 Response 的錯誤物件</td>
-</tr>
-</tbody></table>
-</li>
+<li>單個字母（如”a”、”W”、”4”、”+” 、”$”）</li>
+<li>多個字母（如”F1”、”Enter”、”HOME”、”CAPS LOCK”）</li>
 </ul>
-<blockquote>
-<p> 詳見這篇文章，寫得很清楚：<a href="https://www.oxxostudio.tw/articles/201908/js-fetch.html" target="_blank" rel="noopener">https://www.oxxostudio.tw/articles/201908/js-fetch.html</a> </p>
-</blockquote>
-<br>
-
-
-
-<h4 id="★-RegExp"><a href="#★-RegExp" class="headerlink" title="★ RegExp()"></a>★ RegExp()</h4><p>RegExp() 物件表達正規表達式（regular expression）。在 JavaScript 中，正規表達式也是物件。</p>
-<p>語法：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="built_in">RegExp</span>( pattern , attributes );</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>pattern 是一個字符串，指定了正規表達式的模式；</li>
-<li>attributes 是一個可選的字符串，包含以下屬性：<ul>
-<li>g：全域匹配（查找所有匹配而非在找到第一個匹配後停止）</li>
-<li>i：不區分大小寫匹配</li>
-<li>m：多行匹配</li>
-</ul>
-</li>
-</ul>
-<br>
-
-<ul>
-<li><p>建立正規表達式的兩種方法：</p>
-<ul>
-<li><p>使用正規表達式字面值（regular expression literal），包含兩個 <code>/</code> 字元之間的模式：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> reg = <span class="regexp">/ab+c/</span>;</span><br></pre></td></tr></table></figure>
-
-<p>正規表達式字面值在 script 載入時會被編譯，當正規表達式為定值時，使用此方法可獲得較佳效能。</p>
-</li>
-<li><p>呼叫 RegExp 物件的建構函式：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> reg2 = <span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">'ab+c'</span>);</span><br></pre></td></tr></table></figure>
-
-<p>使用建構子函式供即時編譯正則表達式，當 pattern 會異動、事先未知匹配 pattern、或者從其他地方取得時，建議使用。</p>
-</li>
-</ul>
-</li>
-</ul>
-<br>
-
-<ul>
-<li><p>JavaScript 常見的正規表達式函式</p>
-<ul>
-<li><p><code>RegExp.prototype.test()</code>：搜尋字串中是否有符合的部分，回傳 <code>true</code>/<code>false</code>。</p>
-</li>
-<li><p><code>RegExp.prototype.exec()</code>：以陣列回傳字串中匹配到的部分，否則回傳 <code>null</code>。</p>
-</li>
-<li><p><code>String.prototype.match()</code>：以陣列回傳字串中匹配到的部分，否則回傳 <code>null</code>。</p>
-<p>本課中使用的方法。</p>
+<p>如果想查看是否按下了”ALT”、 “CTRL”、”META”或”SHIFT”鍵，可使用 <code>altKey</code>、<code>ctrlKey</code>、<code>metaKey</code>、<code>shiftKey</code> 屬性。</p>
 <p>範例：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">" chai Chai chaii "</span>.match(<span class="regexp">/cha\w+/</span>);</span><br><span class="line"><span class="comment">// ["chai", index: 1, input: " chai Chai chaii ", groups: undefined]</span></span><br><span class="line"></span><br><span class="line"><span class="string">" chai Chai chaii "</span>.match(<span class="regexp">/cha\w+/gi</span>);</span><br><span class="line"><span class="comment">// ["chai", "Chai", "chaii"]</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.addEventListener(<span class="string">'keyup'</span>, (e) =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(e.key);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h5 id="key、keydown、keypress、keyup"><a href="#key、keydown、keypress、keyup" class="headerlink" title="key、keydown、keypress、keyup"></a>key、keydown、keypress、keyup</h5><ul>
+<li><p>KeyboardEvent.key<br>按鍵按下後，回傳一個鍵盤值。</p>
 </li>
-<li><p><code>String.prototype.replace()</code>：尋找字串中匹配的部分，並取代之。</p>
+<li><p>KeyboardEvent.Events.keydown<br><code>keydown</code> 按鍵按下時觸發。</p>
 </li>
-<li><p><code>String.prototype.search()</code>：尋找字串中是否有符合的部分，有的話回傳 index，否則回傳 <code>-1</code>。 另外，<code>search()</code> 會忽視 <code>g</code>，永遠只能搜尋第一個。</p>
+<li><p>KeyboardEvent.Events.keypress<br><code>keypress</code> 按鍵按下時觸發。按鍵不是特殊鍵（ modifier key 如：Ctrl 、Alt 等）。</p>
 </li>
-<li><p><code>String.prototype.split()</code>：在字串根據匹配到的項目拆成陣列。</p>
+<li><p>KeyboardEvent.Events.keyup<br><code>keyup</code> 當按鍵放開時觸發。</p>
 </li>
 </ul>
-<blockquote>
-<p>這裡有更多使用方式：<a href="https://www.w3school.com.cn/js/jsref_obj_regexp.asp" target="_blank" rel="noopener">https://www.w3school.com.cn/js/jsref_obj_regexp.asp</a></p>
-</blockquote>
-</li>
+<br>
+
+<h4 id="★-Array-includes"><a href="#★-Array-includes" class="headerlink" title="★ Array.includes()"></a>★ Array.includes()</h4><p><code>includes()</code> 方法會判斷陣列是否包含特定的元素，並回傳布林值。</p>
+<p>語法：<code>arr.includes(searchElement[, fromIndex])</code></p>
+<ul>
+<li>searchElement: 要搜尋的元素。</li>
+<li>fromIndex: 要於此陣列中開始搜尋 <code>searchElement</code> 的位置。如為負數值，則自 <code>array.length + fromIndex</code> 開始向後搜尋。預設值為 0。</li>
 </ul>
+<p>範例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> number = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line"><span class="built_in">console</span>.log(number.includes(<span class="number">2</span>));</span><br><span class="line"><span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> me = [<span class="string">'Chai'</span>, <span class="string">'Choo'</span>, <span class="string">'Chia'</span>];</span><br><span class="line"><span class="built_in">console</span>.log(me.includes(<span class="string">'Chai'</span>));</span><br><span class="line"><span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(me.includes(<span class="string">'Ch'</span>));</span><br><span class="line"><span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h4 id="★-Array-push"><a href="#★-Array-push" class="headerlink" title="★ Array.push()"></a>★ Array.push()</h4><p><code>push()</code> 方法會添加一個或多個元素至陣列的末端，並且回傳陣列的新長度。</p>
+<p>＊注意：回傳的不是新陣列，而是新陣列的<em>長度</em>，此方法會直接改變原本的 Array。</p>
+<p>範例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> friends = [<span class="string">'Annie'</span>, <span class="string">'KAWA'</span>, <span class="string">'WeiWei'</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> count = friends.push(<span class="string">'Anthony'</span>);</span><br><span class="line"><span class="built_in">console</span>.log(count);</span><br><span class="line"><span class="comment">// 4</span></span><br><span class="line"><span class="built_in">console</span>.log(friends);</span><br><span class="line"><span class="comment">// ["Annie", "KAWA", "WeiWei", "Anthony"]</span></span><br><span class="line"></span><br><span class="line">friends.push(<span class="string">'Chester'</span>, <span class="string">'Louis'</span>, <span class="string">'River'</span>);</span><br><span class="line"><span class="built_in">console</span>.log(friends);</span><br><span class="line"><span class="comment">// ["Annie", "KAWA", "WeiWei", "Anthony", "Chester", "Louis", "River"]</span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h4 id="★-Array-shift"><a href="#★-Array-shift" class="headerlink" title="★ Array.shift()"></a>★ Array.shift()</h4><p><code>shift()</code> 方法會移除並回傳陣列的第一個元素。</p>
+<p>＊注意：回傳的是被移除的那個<em>第一個元素</em>，此方法會直接改變原本的 Array。</p>
+<p>＊若要刪除並返回數組的最後一個元素，可以使用 <code>pop()</code>。</p>
+<p>範例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> character = [<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>];</span><br><span class="line"><span class="keyword">const</span> firstElement = character.shift();</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(character);</span><br><span class="line"><span class="comment">// ["b", "c"]</span></span><br><span class="line"><span class="built_in">console</span>.log(firstElement);</span><br><span class="line"><span class="comment">// "a"</span></span><br></pre></td></tr></table></figure>
+
 
             
 
@@ -576,14 +430,11 @@
         <ul class="post-actions post-action-nav">
             <li class="post-action">
                 
-                    
-                <a
-                    class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/12/03/js30-07/"
-                    data-tooltip="JS30 Day07 Array Cardio Day 2"
-                    aria-label="上一篇: JS30 Day07 Array Cardio Day 2"
-                >
-                    
+                    <a
+                        class="post-action-btn btn btn--disabled"
+                        aria-hidden="true"
+                    >
+                        
                         <i class="fa fa-angle-left" aria-hidden="true"></i>
                         <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
                     </a>
@@ -593,9 +444,9 @@
                     
                 <a
                     class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/11/19/js30-05/"
-                    data-tooltip="JS30 Day05 Flex Panels Image Gallery"
-                    aria-label="下一篇: JS30 Day05 Flex Panels Image Gallery"
+                    href="/2020/01/04/js30-11/"
+                    data-tooltip="JS30 Day11 Custom HTML5 Video Player"
+                    aria-label="下一篇: JS30 Day11 Custom HTML5 Video Player"
                 >
                     
                         <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
@@ -620,7 +471,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/12/01/js30-06/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2020/01/05/js30-12/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -633,7 +484,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/12/01/js30-06/"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2020/01/05/js30-12/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -646,7 +497,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/12/01/js30-06/"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2020/01/05/js30-12/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -704,14 +555,11 @@
         <ul class="post-actions post-action-nav">
             <li class="post-action">
                 
-                    
-                <a
-                    class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/12/03/js30-07/"
-                    data-tooltip="JS30 Day07 Array Cardio Day 2"
-                    aria-label="上一篇: JS30 Day07 Array Cardio Day 2"
-                >
-                    
+                    <a
+                        class="post-action-btn btn btn--disabled"
+                        aria-hidden="true"
+                    >
+                        
                         <i class="fa fa-angle-left" aria-hidden="true"></i>
                         <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
                     </a>
@@ -721,9 +569,9 @@
                     
                 <a
                     class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/11/19/js30-05/"
-                    data-tooltip="JS30 Day05 Flex Panels Image Gallery"
-                    aria-label="下一篇: JS30 Day05 Flex Panels Image Gallery"
+                    href="/2020/01/04/js30-11/"
+                    data-tooltip="JS30 Day11 Custom HTML5 Video Player"
+                    aria-label="下一篇: JS30 Day11 Custom HTML5 Video Player"
                 >
                     
                         <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
@@ -748,7 +596,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/12/01/js30-06/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2020/01/05/js30-12/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -761,7 +609,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/12/01/js30-06/"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2020/01/05/js30-12/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -774,7 +622,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/12/01/js30-06/"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2020/01/05/js30-12/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -818,7 +666,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/12/01/js30-06/"
+                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2020/01/05/js30-12/"
                         aria-label="分享到 Facebook"
                     >
                         <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
@@ -831,7 +679,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/12/01/js30-06/"
+                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2020/01/05/js30-12/"
                         aria-label="分享到 Twitter"
                     >
                         <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
@@ -844,7 +692,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://plus.google.com/share?url=https://chaichai.site/2019/12/01/js30-06/"
+                        href="https://plus.google.com/share?url=https://chaichai.site/2020/01/05/js30-12/"
                         aria-label="分享到 Google+"
                     >
                         <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
@@ -1275,7 +1123,7 @@
               repo: 'Chai0710.github.io',
               owner: 'Chai0710',
               admin: ['Chai0710'],
-              id: '2019/12/01/js30-06/',
+              id: '2020/01/05/js30-12/',
               ...{"language":"zh-tw","perPage":10,"distractionFreeMode":false,"enableHotKey":true,"pagerDirection":"first"}
             }).render('gitalk')
           })()
