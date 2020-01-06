@@ -41,15 +41,15 @@
     title="RSS"
     href="/atom.xml"
   />
-   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"JS30 Day12\n這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。\n\n\n\n\nKey Sequence Detection完成目標\n做一個打密碼出現彩蛋的功能。\n\n像是在這個網站：https://www.buzzfeed.com/\n輸入「上、上、下、下、左、右、左、右、Ｂ、Ａ」之後會出現彩蛋\n\n\n\n\n\n\n\n\n\nindex-START.html123456789101112&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;  &lt;meta charset=\"UTF-8\"&gt;  &lt;title&gt;Key Detection&lt;/title&gt;  &lt;script type=\"text/javascript\" src=\"https://www.cornify.com/js/cornify.js\"&gt;&lt;/script&gt;&lt;/head&gt;&lt;body&gt;&lt;script&gt;&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;\n\n\n\nindex-FINISHED.html12345678910111213141516171819202122232425&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;  &lt;meta charset=\"UTF-8\"&gt;  &lt;title&gt;Key Detection&lt;/title&gt;  &lt;script type=\"text/javascript\" src=\"https://www.cornify.com/js/cornify.js\"&gt;&lt;/script&gt;&lt;/head&gt;&lt;body&gt;&lt;script&gt;const pressed = [];const secretCode = 'wesbos';window.addEventListener('keyup', (e) =&gt; &#123;  console.log(e.key);  pressed.push(e.key);  pressed.splice(-secretCode.length - 1, pressed.length - secretCode.length);  if (pressed.join('').includes(secretCode)) &#123;    console.log('DING DING!');    cornify_add();  &#125;  console.log(pressed);&#125;);&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;\n\n\n\n\n\n\n學習筆記\n\n★ KeyboardEvent.keykey 事件在按下按鍵時返回鍵盤按鈕的字串，該屬性的返回值可以是：\n\n單個字母：如 a、G、1、+ 、&amp;\n多個字母：F1、Enter、HOME、CAPS LOCK\n\n如果想查看是否按下了 alt、 ctrl、meta 或 shift 鍵，可使用 altKey、ctrlKey、metaKey、shiftKey 屬性。\n範例：\n123window.addEventListener('keyup', (e) =&gt; &#123;    console.log(e.key);&#125;)\n\n\n\nkey、keydown、keypress、keyup\nKeyboardEvent.key按鍵按下後，回傳一個鍵盤值。\n\nKeyboardEvent.Events.keydownkeydown 按鍵按下時觸發。\n\nKeyboardEvent.Events.keypresskeypress 按鍵按下時觸發。按鍵不是特殊鍵（ modifier key 如：Ctrl 、Alt 等）。\n\nKeyboardEvent.Events.keyupkeyup 當按鍵放開時觸發。\n\n\n\n\n★ Array.includes()includes() 方法會判斷陣列是否包含特定的元素，並回傳布林值。\n語法：arr.includes(searchElement[, fromIndex])\n\nsearchElement: 要搜尋的元素。\nfromIndex: 要於此陣列中開始搜尋 searchElement 的位置。如為負數值，則自 array.length + fromIndex 開始向後搜尋。預設值為 0。\n\n範例：\n12345678910const number = [1, 2, 3];console.log(number.includes(2));// trueconst me = ['Chai', 'Choo', 'Chia'];console.log(me.includes('Chai'));// trueconsole.log(me.includes('Ch'));// false\n\n\n\n★ Array.push()push() 方法會添加一個或多個元素至陣列的末端，並且回傳陣列的新長度。\n＊注意：回傳的不是新陣列，而是新陣列的長度，此方法會直接改變原本的 Array。\n範例：\n1234567891011const friends = ['Annie', 'KAWA', 'WeiWei'];const count = friends.push('Anthony');console.log(count);// 4console.log(friends);// [\"Annie\", \"KAWA\", \"WeiWei\", \"Anthony\"]friends.push('Chester', 'Louis', 'River');console.log(friends);// [\"Annie\", \"KAWA\", \"WeiWei\", \"Anthony\", \"Chester\", \"Louis\", \"River\"]\n\n\n\n★ Array.shift()shift() 方法會移除並回傳陣列的第一個元素。\n＊注意：回傳的是被移除的那個第一個元素，此方法會直接改變原本的 Array。\n＊若要刪除並返回數組的最後一個元素，可以使用 pop()。\n範例：\n1234567const character = ['a', 'b', 'c'];const firstElement = character.shift();console.log(character);// [\"b\", \"c\"]console.log(firstElement);// \"a\"\n\n","dateCreated":"2020-01-05T00:00:00+08:00","dateModified":"2020-01-06T23:45:44+08:00","datePublished":"2020-01-05T00:00:00+08:00","description":"JS30 Day12\n這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。","headline":"JS30 Day12 Key Sequence Detection","image":["https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400","https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2020/01/05/js30-12/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2020/01/05/js30-12/","keywords":"程式筆記, Javascript, JS30","thumbnailUrl":"https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400"}</script> <meta name="description" content="JS30 Day12 這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。">
+   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"JS30 Day12\n這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。\n\n\n\n\nKey Sequence Detection完成目標\n做一個打密碼出現彩蛋的功能。\n\n像是在這個網站：https://www.buzzfeed.com/\n輸入「上、上、下、下、左、右、左、右、Ｂ、Ａ」之後會出現彩蛋\n\n\n\n\n\n\n\n\n\nindex-START.html123456789101112&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;  &lt;meta charset=\"UTF-8\"&gt;  &lt;title&gt;Key Detection&lt;/title&gt;  &lt;script type=\"text/javascript\" src=\"https://www.cornify.com/js/cornify.js\"&gt;&lt;/script&gt;&lt;/head&gt;&lt;body&gt;&lt;script&gt;&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;\n\n\n\nindex-FINISHED.html12345678910111213141516171819202122232425&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;  &lt;meta charset=\"UTF-8\"&gt;  &lt;title&gt;Key Detection&lt;/title&gt;  &lt;script type=\"text/javascript\" src=\"https://www.cornify.com/js/cornify.js\"&gt;&lt;/script&gt;&lt;/head&gt;&lt;body&gt;&lt;script&gt;const pressed = [];const secretCode = 'wesbos';window.addEventListener('keyup', (e) =&gt; &#123;  console.log(e.key);  pressed.push(e.key);  pressed.splice(-secretCode.length - 1, pressed.length - secretCode.length);  if (pressed.join('').includes(secretCode)) &#123;    console.log('DING DING!');    cornify_add();  &#125;  console.log(pressed);&#125;);&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;\n\n\n\n\n\n\n學習筆記\n\n★ KeyboardEvent.keykey 事件在按下按鍵時返回鍵盤按鈕的字串，該屬性的返回值可以是：\n\n單個字母：如 a、G、1、+ 、&amp;\n多個字母：F1、Enter、HOME、CAPS LOCK\n\n如果想查看是否按下了 alt、 ctrl、meta 或 shift 鍵，可使用 altKey、ctrlKey、metaKey、shiftKey 屬性。\n範例：\n123window.addEventListener('keyup', (e) =&gt; &#123;    console.log(e.key);&#125;)\n\n\n\nkey、keydown、keypress、keyup\nKeyboardEvent.key按鍵按下後，回傳一個鍵盤值。\n\nKeyboardEvent.Events.keydownkeydown 按鍵按下時觸發。\n\nKeyboardEvent.Events.keypresskeypress 按鍵按下時觸發。按鍵不是特殊鍵（ modifier key 如：Ctrl 、Alt 等）。\n\nKeyboardEvent.Events.keyupkeyup 當按鍵放開時觸發。\n\n\n\n\n★ Array.includes()includes() 方法會判斷陣列是否包含特定的元素，並回傳布林值。\n語法：arr.includes(searchElement[, fromIndex])\n\nsearchElement: 要搜尋的元素。\nfromIndex: 要於此陣列中開始搜尋 searchElement 的位置。如為負數值，則自 array.length + fromIndex 開始向後搜尋。預設值為 0。\n\n範例：\n12345678910const number = [1, 2, 3];console.log(number.includes(2));// trueconst me = ['Chai', 'Choo', 'Chia'];console.log(me.includes('Chai'));// trueconsole.log(me.includes('Ch'));// false\n\n\n\n★ Array.push()push() 方法會添加一個或多個元素至陣列的末端，並且回傳陣列的新長度。\n＊注意：回傳的不是新陣列，而是新陣列的長度，此方法會直接改變原本的 Array。\n範例：\n1234567891011const friends = ['Annie', 'KAWA', 'WeiWei'];const count = friends.push('Anthony');console.log(count);// 4console.log(friends);// [\"Annie\", \"KAWA\", \"WeiWei\", \"Anthony\"]friends.push('Chester', 'Louis', 'River');console.log(friends);// [\"Annie\", \"KAWA\", \"WeiWei\", \"Anthony\", \"Chester\", \"Louis\", \"River\"]\n\n\n\n★ Array.shift()shift() 方法會移除並回傳陣列的第一個元素。\n＊注意：回傳的是被移除的那個第一個元素，此方法會直接改變原本的 Array。\n＊若要刪除並返回數組的最後一個元素，可以使用 pop()。\n範例：\n1234567const character = ['a', 'b', 'c'];const firstElement = character.shift();console.log(character);// [\"b\", \"c\"]console.log(firstElement);// \"a\"\n\n","dateCreated":"2020-01-06T00:00:00+08:00","dateModified":"2020-01-06T23:46:07+08:00","datePublished":"2020-01-06T00:00:00+08:00","description":"JS30 Day12\n這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。","headline":"JS30 Day12 Key Sequence Detection","image":["https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400","https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2020/01/06/js30-12/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2020/01/06/js30-12/","keywords":"程式筆記, Javascript, JS30","thumbnailUrl":"https://lh3.googleusercontent.com/IN7RoN5Xz0jleQP9q7G974gVx2Nd5uP5N1Gwqy77HT2uftIrs3YCmHyiO21or--WntO2o0kQWMjxshbH3Z2bYYaQieaJqk_e5_rUqXDIlq0Ahzga5bVw2qRguz-ZPMwz1CCyQ_GVGA=w2400"}</script> <meta name="description" content="JS30 Day12 這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。">
 <meta name="keywords" content="程式筆記,Javascript,JS30">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="JS30 Day12 Key Sequence Detection">
-<meta property="og:url" content="https://chaichai.site/2020/01/05/js30-12/index.html">
+<meta property="og:url" content="https://chaichai.site/2020/01/06/js30-12/index.html">
 <meta property="og:site_name" content="Chai&#39;s Blog">
 <meta property="og:description" content="JS30 Day12 這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:updated_time" content="2020-01-06T15:45:44.722Z">
+<meta property="og:updated_time" content="2020-01-06T15:46:07.183Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JS30 Day12 Key Sequence Detection">
 <meta name="twitter:description" content="JS30 Day12 這次的課較簡單，學會記錄使用者輸入的資料，並且檢查該資料。">     
@@ -299,9 +299,9 @@
     
     
         <div class="post-meta">
-    <time datetime="2020-01-05T00:00:00+08:00">
+    <time datetime="2020-01-06T00:00:00+08:00">
 	
-		    1月 05, 2020
+		    1月 06, 2020
     	
     </time>
     
@@ -471,7 +471,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2020/01/05/js30-12/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2020/01/06/js30-12/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -484,7 +484,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2020/01/05/js30-12/"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2020/01/06/js30-12/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -497,7 +497,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2020/01/05/js30-12/"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2020/01/06/js30-12/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -596,7 +596,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2020/01/05/js30-12/"
+                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2020/01/06/js30-12/"
                     title="分享到 Facebook"
                     aria-label="分享到 Facebook"
                 >
@@ -609,7 +609,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2020/01/05/js30-12/"
+                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2020/01/06/js30-12/"
                     title="分享到 Twitter"
                     aria-label="分享到 Twitter"
                 >
@@ -622,7 +622,7 @@
             <li class="post-action hide-xs">
                 <a
                     class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2020/01/05/js30-12/"
+                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2020/01/06/js30-12/"
                     title="分享到 Google+"
                     aria-label="分享到 Google+"
                 >
@@ -666,7 +666,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2020/01/05/js30-12/"
+                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2020/01/06/js30-12/"
                         aria-label="分享到 Facebook"
                     >
                         <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
@@ -679,7 +679,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2020/01/05/js30-12/"
+                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2020/01/06/js30-12/"
                         aria-label="分享到 Twitter"
                     >
                         <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
@@ -692,7 +692,7 @@
                     <a
                         class="share-option-btn"
                         target="new"
-                        href="https://plus.google.com/share?url=https://chaichai.site/2020/01/05/js30-12/"
+                        href="https://plus.google.com/share?url=https://chaichai.site/2020/01/06/js30-12/"
                         aria-label="分享到 Google+"
                     >
                         <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
@@ -1123,7 +1123,7 @@
               repo: 'Chai0710.github.io',
               owner: 'Chai0710',
               admin: ['Chai0710'],
-              id: '2020/01/05/js30-12/',
+              id: '2020/01/06/js30-12/',
               ...{"language":"zh-tw","perPage":10,"distractionFreeMode":false,"enableHotKey":true,"pagerDirection":"first"}
             }).render('gitalk')
           })()
