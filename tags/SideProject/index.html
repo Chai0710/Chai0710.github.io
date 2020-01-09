@@ -25,7 +25,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="generator" content="Chai&#39;s Blog" />
-  <title>Rails Search Tip - Chai&#39;s Blog</title>
+  <title>標籤: SideProject - Chai&#39;s Blog</title>
   <meta name="author" content="Chai Wei-Li" />
   
   <meta name="keywords" content="Ruby on Rails,Programmer," />
@@ -41,50 +41,24 @@
     title="RSS"
     href="/atom.xml"
   />
-   <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg"},"articleBody":"這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～\n\n\n\nRails search tip若需要在 rails console 查詢某個 model 在指定的一個月之間所建立的資料，可以這麼做：\n\n記得先將時區改成所在位置，不然可能會有時區的問題\n\n1Time_zone = \"Taipei\"\n\n\n用 to_date 方法將字串轉換成日期\n\n1234start_date = \"2019-12-01\".to_date# =&gt; Sun, 01 Dec 2019end_date = \"2019-12-31\".to_date# =&gt; Mon, 31 Dec 2019\n\n\n用 where 查詢，兩個時間之間可以用 Ruby的語法  .. 表示範圍\n\n1Task.where(created_at: start_date..end_date)\n\n\n\n＊若想要查詢某天到目前所建立的所有資料，可以用 Time.now：\n12some_date = \"2019-11-14\"Task.where(created_at: some_date..Time.now)\n\n","dateCreated":"2019-12-17T00:00:00+08:00","dateModified":"2019-12-17T22:43:03+08:00","datePublished":"2019-12-17T00:00:00+08:00","description":"這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～","headline":"Rails Search Tip","image":["https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400","https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://chaichai.site/2019/12/17/rails_searchtip/"},"publisher":{"@type":"Organization","name":"Chai Wei-Li","sameAs":["https://github.com/Chai0710","https://twitter.com/wownchai","https://www.linkedin.com/in/weili-chai-619570128/","mailto:wown0710@gmail.com"],"image":"chai2.jpg","logo":{"@type":"ImageObject","url":"chai2.jpg"}},"url":"https://chaichai.site/2019/12/17/rails_searchtip/","keywords":"程式筆記, Ruby, Rails","thumbnailUrl":"https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400"}</script> <meta name="description" content="這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～">
-<meta name="keywords" content="程式筆記,Ruby,Rails">
+   <script type="application/ld+json">{}</script> <meta name="keywords" content="Ruby on Rails,Programmer">
 <meta property="og:type" content="blog">
-<meta property="og:title" content="Rails Search Tip">
-<meta property="og:url" content="https://chaichai.site/2019/12/17/rails_searchtip/index.html">
+<meta property="og:title" content="Chai&#39;s Blog">
+<meta property="og:url" content="https://chaichai.site/tags/SideProject/index.html">
 <meta property="og:site_name" content="Chai&#39;s Blog">
-<meta property="og:description" content="這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:updated_time" content="2019-12-17T14:43:03.514Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Rails Search Tip">
-<meta name="twitter:description" content="這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～">     
+<meta name="twitter:title" content="Chai&#39;s Blog">     
   <meta
     property="og:image"
     content="https://chaichai.site/assets/images/chai2.jpg"
   />
-   
-  <meta
-    property="og:image"
-    content="https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400"
-  />
-  <meta
-    class="swiftype"
-    name="image"
-    data-type="enum"
-    content="https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400"
-  />
-   
-  <meta
-    property="og:image"
-    content="https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400"
-  />
-  <meta
-    class="swiftype"
-    name="image"
-    data-type="enum"
-    content="https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400"
-  />
-   
+     
   <!--STYLES-->
   <link rel="stylesheet" href="/assets/css/style-cfvtcukseptqvusuk7rzmd0l1apgmghnwq0qzcswk9li23zcutw2uurypnfc.min.css">
   <!--STYLES END-->
   
-    <link rel="stylesheet" href="/assets/css/gitalk.css">  
+  
 </head>
 
     <body>
@@ -92,7 +66,7 @@
             <!-- Define author's picture -->
 
 
-<header id="header" data-behavior="4">
+<header id="header" data-behavior="1">
     <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
     <div class="header-title">
         <a
@@ -125,7 +99,7 @@
         
     
 
-<nav id="sidebar" data-behavior="4">
+<nav id="sidebar" data-behavior="1">
     <div class="sidebar-container">
         
             <div class="sidebar-profile">
@@ -285,208 +259,119 @@
 </nav>
 
             
-        <div class="post-header-cover
-                    text-center
-                    post-header-cover--full"
-             style="background-image:url('https://lh3.googleusercontent.com/tqAkTA0cdcteDiXYDMhk27JezlAwWPzNLz_nU43NVHBwwt81shvy6jXbv90UXpSu7ldYlpBtMuJIgHJ0p86F5uC9UJ-AM7AAedITqi_9KEnRpsLRIt3YaukJOzyr5epFNP392nQD7Q=w2400');"
-             data-behavior="4">
+            <div id="main" data-behavior="1"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+    <section class="postShorten-group main-content-wrap">
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-bottom">
+        <div class="postShorten-wrap">
             
-                <div class="post-header main-content-wrap text-center">
-    
-        <h1 class="post-title">
-            Rails Search Tip
-        </h1>
-    
-    
-        <div class="post-meta">
-    <time datetime="2019-12-17T00:00:00+08:00">
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a
+                            class="link-unstyled"
+                            href="/2020/01/09/taiwanvote/"
+                            aria-label=": 選舉公報 - 好讀app版"
+                        >
+                            選舉公報 - 好讀app版
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2020-01-09T00:00:00+08:00">
 	
-		    12月 17, 2019
+		    1月 09, 2020
     	
     </time>
     
         <span>分類 </span>
         
-    <a class="category-link" href="/categories/程式筆記/">程式筆記</a>
+    <a class="category-link" href="/categories/SideProject/">SideProject</a>
 
 
     
 </div>
-
-    
-</div>
-
-            
-        </div>
-
-            <div id="main" data-behavior="4"
-                 class="hasCover
-                        hasCoverMetaIn
-                        ">
-                
-<article class="post">
-    
-    
-    <div class="post-content markdown">
-        <div class="main-content-wrap">
-            <p>這幾天在寫 Rails 的練習，想分享一個使用 where 查詢時間範圍的小方法～</p>
-<a id="more"></a>
-
-<hr>
-<h1 id="Rails-search-tip"><a href="#Rails-search-tip" class="headerlink" title="Rails search tip"></a>Rails search tip</h1><p>若需要在 rails console 查詢某個 model 在指定的<em>一個月</em>之間所建立的資料，可以這麼做：</p>
-<ol>
-<li>記得先將時區改成所在位置，不然可能會有時區的問題</li>
-</ol>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Time_zone = <span class="string">"Taipei"</span></span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>用 <code>to_date</code> 方法將字串轉換成日期</li>
-</ol>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">start_date = <span class="string">"2019-12-01"</span>.to_date</span><br><span class="line"><span class="comment"># =&gt; Sun, 01 Dec 2019</span></span><br><span class="line">end_date = <span class="string">"2019-12-31"</span>.to_date</span><br><span class="line"><span class="comment"># =&gt; Mon, 31 Dec 2019</span></span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>用 <code>where</code> 查詢，兩個時間之間可以用 Ruby的語法  <code>..</code> 表示範圍</li>
-</ol>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Task.where(<span class="symbol">created_at:</span> start_date..end_date)</span><br></pre></td></tr></table></figure>
-
-
-
-<p>＊若想要查詢某天到目前所建立的所有資料，可以用 <code>Time.now</code>：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">some_date = <span class="string">"2019-11-14"</span></span><br><span class="line">Task.where(<span class="symbol">created_at:</span> some_date..Time.now)</span><br></pre></td></tr></table></figure>
-
-
-            
-
-
-        </div>
-    </div>
-    <div id="post-footer" class="post-footer main-content-wrap">
-        
-            <div class="post-footer-tags">
-                <span class="text-color-light text-small">標籤</span><br/>
-                
-    <a class="tag tag--primary tag--small t-link" href="/tags/Rails/">Rails</a> <a class="tag tag--primary tag--small t-link" href="/tags/Ruby/">Ruby</a> <a class="tag tag--primary tag--small t-link" href="/tags/程式筆記/">程式筆記</a>
 
             </div>
+            
+                <div class="postShorten-content">
+                    <h1 id="選舉公報-好讀app版"><a href="#選舉公報-好讀app版" class="headerlink" title="選舉公報 - 好讀app版"></a>選舉公報 - 好讀app版</h1><p>人生中的第一個 App 誕生了！</p>
+<hr>
+<br>
+
+<blockquote>
+<p> *<em>2020選舉公報 - 好讀app版：<a href="https://taiwanvote.glideapp.io/" target="_blank" rel="noopener">https://taiwanvote.glideapp.io/</a> *</em></p>
+</blockquote>
+<br>
+
+<p>其實是用 No code 工具 <em>Glide</em> 製作的 PWA ～XD</p>
+<p>＊因為候選人資料量太龐大，超出免費的額度，花錢升級成一個月的 Pro 帳戶，所以可以客製化 domain，一個月後可能會改網址</p>
+<br>
+
+<h3 id="為什麼會想做這個-app-呢？"><a href="#為什麼會想做這個-app-呢？" class="headerlink" title="為什麼會想做這個 app 呢？"></a>為什麼會想做這個 app 呢？</h3><p>幾週前看到<a href="https://medium.com/starrocket/glide-app-turns-google-sheets-into-apps-3b084a519bd5" target="_blank" rel="noopener">星箭廣播</a>的介紹，得知 <em>Glide</em> 這個強大的服務。像這樣的 No Code 工具是時代的趨勢，不久以後網頁工程師應該也會沒飯吃了……</p>
+<p>而上週與朋友討論選舉，發現不住在家的人拿不到選舉公報，上網查<a href="http://eebulletin.cec.gov.tw/109/01%E7%B8%BD%E7%B5%B1%E5%89%AF%E7%B8%BD%E7%B5%B1/%E7%B8%BD%E7%B5%B1%E5%89%AF%E7%B8%BD%E7%B5%B1%E9%81%B8%E8%88%89.pdf" target="_blank" rel="noopener">中選會的資料</a>，卻看到這麼一大張 pdf ，在一個畫面中塞了太多字，實在降低不少閱讀意願。</p>
+<p>如果能以 App 的形式，做出簡潔、容易閱讀的選舉公報，應該會提升大家看政見的意願吧（？</p>
+<p>於是花了幾個日夜，趕在選舉前做出了這個 App。</p>
+<p>很簡單、很陽春，但至少可以在返鄉投票的路上臨時抱佛腳，即使沒位子坐，也可以單手滑手機看一下候選人政見。</p>
+<br>
+
+<h3 id="雖然不用寫程式"><a href="#雖然不用寫程式" class="headerlink" title="雖然不用寫程式"></a>雖然不用寫程式</h3><p>用 <em>Glide</em> 就是為了在短時間內生出 App，不用寫程式（雖然還是為了修改模板的樣式寫了幾行XD），文件非常清楚，甚至還有影片解說，揪甘心。</p>
+<p>但花了不少時間整理資料，做了選舉公報才知道許多選舉的常識（被打），還有因為手 key 了許多地名，對台灣地理有了更多了解……</p>
+<p>最麻煩的是想主視覺，因為幾乎所有顏色都不能用。橘色、黃色、綠色、藍色，甚至連我最愛的藍綠色都被民眾搶走了。為了表達正向、積極的氛圍，又不能使用咖啡色、灰色等太陰暗的色調。</p>
+<p>想了一個下午後，決定以紅色當主視覺，由於 App 的白底是不能更動的，明度稍低的紅色是我認為與白色很相襯的顏色，而 Logo 則設計得較為明亮，希望激起大家熱血的心。</p>
+<p>可惜版面沒辦法細調，滿多地方的行距、配置我都不滿意，政見的部分也沒辦法一個一個調整，只好有圖看圖了QQ</p>
+<br>
+
+<h3 id="台灣加油呀"><a href="#台灣加油呀" class="headerlink" title="台灣加油呀"></a>台灣加油呀</h3><p>希望這個小東西可以讓更多人注意到選舉公報，即使只是提升一點大家對選舉的關注也好，政治就是生活，投票才能實現美好的民主。</p>
+<p>選舉公報 - 好讀app版 是跟 <a href="https://www.linkedin.com/in/jayyuu/" target="_blank" rel="noopener">Jay</a> 一起完成的。我們的工作室叫做 DBspace，目前只有一個難產的遊戲還在開發階段 XDD</p>
+<p>如果有任何意見、錯誤回報歡迎留言給我，或是寄信到 <a href="mailto:dbspace2020@gmail.com" target="_blank" rel="noopener">dbspace2020@gmail.com</a>，謝謝！</p>
+
+                    
+                        
+
+
+                    
+                    
+                        <p>
+                            <a
+                                href="/2020/01/09/taiwanvote/#post-footer"
+                                class="postShorten-excerpt_link link"
+                                aria-label=""
+                            >
+                                留言與分享
+                            </a>
+                        </p>
+                    
+                </div>
+            
+        </div>
         
-        
-            <div class="post-actions-wrap">
-    <nav>
-        <ul class="post-actions post-action-nav">
-            <li class="post-action">
-                
-                    
-                <a
-                    class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/12/31/js30-09/"
-                    data-tooltip="JS30 Day09 Must Know Dev Tools Tricks"
-                    aria-label="上一篇: JS30 Day09 Must Know Dev Tools Tricks"
-                >
-                    
-                        <i class="fa fa-angle-left" aria-hidden="true"></i>
-                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
-                    </a>
-            </li>
-            <li class="post-action">
-                
-                    
-                <a
-                    class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/12/06/js30-08/"
-                    data-tooltip="JS30 Day08 Fun with HTML5 Canvas"
-                    aria-label="下一篇: JS30 Day08 Fun with HTML5 Canvas"
-                >
-                    
-                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
-                        <i class="fa fa-angle-right" aria-hidden="true"></i>
-                    </a>
-            </li>
-        </ul>
-    </nav>
-    <ul class="post-actions post-action-share">
-        <li class="post-action hide-lg hide-md hide-sm">
             <a
-                class="post-action-btn btn btn--default btn-open-shareoptions"
-                href="#btn-open-shareoptions"
-                aria-label="Diesen Beitrag teilen"
+                href="/2020/01/09/taiwanvote/"
+                aria-label=": 選舉公報 - 好讀app版"
             >
-                <i class="fa fa-share-alt" aria-hidden="true"></i>
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://lh3.googleusercontent.com/YhKsF5Z2MiDRlxKbxY3chGTprXRrwmKlNnJmjviHpTfSGPNT0dgdCThZdUWD1R7dJVZxzR9n8p45KRCHolJ7JwP23oO_63lm7NdXoewYJGjiXtd4Buw7mGRseURnBvc1lG-W08u4vg=w2400"/>
+                </div>
             </a>
-        </li>
-        
-            
-            
-            <li class="post-action hide-xs">
-                <a
-                    class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/12/17/rails_searchtip/"
-                    title="分享到 Facebook"
-                    aria-label="分享到 Facebook"
-                >
-                    <i class="fab fa-facebook" aria-hidden="true"></i>
-                </a>
-            </li>
-        
-            
-            
-            <li class="post-action hide-xs">
-                <a
-                    class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/12/17/rails_searchtip/"
-                    title="分享到 Twitter"
-                    aria-label="分享到 Twitter"
-                >
-                    <i class="fab fa-twitter" aria-hidden="true"></i>
-                </a>
-            </li>
-        
-            
-            
-            <li class="post-action hide-xs">
-                <a
-                    class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/12/17/rails_searchtip/"
-                    title="分享到 Google+"
-                    aria-label="分享到 Google+"
-                >
-                    <i class="fab fa-google-plus" aria-hidden="true"></i>
-                </a>
-            </li>
-        
-        
-            
-                <li class="post-action">
-                    <a
-                        class="post-action-btn btn btn--default"
-                        href="#gitalk"
-                        aria-label="Kommentieren"
-                    >
-                        <i class="fa fa-comment"></i>
-                    </a>
-                </li>
             
         
-        <li class="post-action">
-            
-                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
-            
-                <i class="fa fa-list" aria-hidden="true"></i>
-            </a>
-        </li>
+    </article>
+    
+    <div class="pagination-bar">
+    <ul class="pagination">
+        
+        
+        <li class="pagination-number">第 1 頁 共 1 頁</li>
     </ul>
 </div>
 
-
-        
-        
-            
-                <div id="gitalk"></div>
-
-            
-        
-    </div>
-</article>
-
+</section>
 
 
                 <footer id="footer" class="main-content-wrap">
@@ -496,164 +381,6 @@
 </footer>
 
             </div>
-            
-                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
-                    <div class="post-actions-wrap">
-    <nav>
-        <ul class="post-actions post-action-nav">
-            <li class="post-action">
-                
-                    
-                <a
-                    class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/12/31/js30-09/"
-                    data-tooltip="JS30 Day09 Must Know Dev Tools Tricks"
-                    aria-label="上一篇: JS30 Day09 Must Know Dev Tools Tricks"
-                >
-                    
-                        <i class="fa fa-angle-left" aria-hidden="true"></i>
-                        <span class="hide-xs hide-sm text-small icon-ml">上一篇</span>
-                    </a>
-            </li>
-            <li class="post-action">
-                
-                    
-                <a
-                    class="post-action-btn btn btn--default tooltip--top"
-                    href="/2019/12/06/js30-08/"
-                    data-tooltip="JS30 Day08 Fun with HTML5 Canvas"
-                    aria-label="下一篇: JS30 Day08 Fun with HTML5 Canvas"
-                >
-                    
-                        <span class="hide-xs hide-sm text-small icon-mr">下一篇</span>
-                        <i class="fa fa-angle-right" aria-hidden="true"></i>
-                    </a>
-            </li>
-        </ul>
-    </nav>
-    <ul class="post-actions post-action-share">
-        <li class="post-action hide-lg hide-md hide-sm">
-            <a
-                class="post-action-btn btn btn--default btn-open-shareoptions"
-                href="#btn-open-shareoptions"
-                aria-label="Diesen Beitrag teilen"
-            >
-                <i class="fa fa-share-alt" aria-hidden="true"></i>
-            </a>
-        </li>
-        
-            
-            
-            <li class="post-action hide-xs">
-                <a
-                    class="post-action-btn btn btn--default"
-                    target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/12/17/rails_searchtip/"
-                    title="分享到 Facebook"
-                    aria-label="分享到 Facebook"
-                >
-                    <i class="fab fa-facebook" aria-hidden="true"></i>
-                </a>
-            </li>
-        
-            
-            
-            <li class="post-action hide-xs">
-                <a
-                    class="post-action-btn btn btn--default"
-                    target="new" href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/12/17/rails_searchtip/"
-                    title="分享到 Twitter"
-                    aria-label="分享到 Twitter"
-                >
-                    <i class="fab fa-twitter" aria-hidden="true"></i>
-                </a>
-            </li>
-        
-            
-            
-            <li class="post-action hide-xs">
-                <a
-                    class="post-action-btn btn btn--default"
-                    target="new" href="https://plus.google.com/share?url=https://chaichai.site/2019/12/17/rails_searchtip/"
-                    title="分享到 Google+"
-                    aria-label="分享到 Google+"
-                >
-                    <i class="fab fa-google-plus" aria-hidden="true"></i>
-                </a>
-            </li>
-        
-        
-            
-                <li class="post-action">
-                    <a
-                        class="post-action-btn btn btn--default"
-                        href="#gitalk"
-                        aria-label="Kommentieren"
-                    >
-                        <i class="fa fa-comment"></i>
-                    </a>
-                </li>
-            
-        
-        <li class="post-action">
-            
-                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
-            
-                <i class="fa fa-list" aria-hidden="true"></i>
-            </a>
-        </li>
-    </ul>
-</div>
-
-
-                </div>
-                
-    <div id="share-options-bar" class="share-options-bar" data-behavior="4">
-        <i id="btn-close-shareoptions" class="fa fa-times"></i>
-        <ul class="share-options">
-            
-                
-                
-                <li class="share-option">
-                    <a
-                        class="share-option-btn"
-                        target="new"
-                        href="https://www.facebook.com/sharer/sharer.php?u=https://chaichai.site/2019/12/17/rails_searchtip/"
-                        aria-label="分享到 Facebook"
-                    >
-                        <i class="fab fa-facebook" aria-hidden="true"></i><span>分享到 Facebook</span>
-                    </a>
-                </li>
-            
-                
-                
-                <li class="share-option">
-                    <a
-                        class="share-option-btn"
-                        target="new"
-                        href="https://twitter.com/intent/tweet?text=https://chaichai.site/2019/12/17/rails_searchtip/"
-                        aria-label="分享到 Twitter"
-                    >
-                        <i class="fab fa-twitter" aria-hidden="true"></i><span>分享到 Twitter</span>
-                    </a>
-                </li>
-            
-                
-                
-                <li class="share-option">
-                    <a
-                        class="share-option-btn"
-                        target="new"
-                        href="https://plus.google.com/share?url=https://chaichai.site/2019/12/17/rails_searchtip/"
-                        aria-label="分享到 Google+"
-                    >
-                        <i class="fab fa-google-plus" aria-hidden="true"></i><span>分享到 Google+</span>
-                    </a>
-                </li>
-            
-        </ul>
-    </div>
-
-
             
         </div>
         
@@ -1063,23 +790,6 @@
 <script src="/assets/js/script-svtwgfryapukh90stjxmqmwdnkuvnvbtxrp4mjtwg8hlzz4imddb8f0ll3mm.min.js"></script>
 <!--SCRIPTS END-->
 
-
-    
-        <script src="/assets/js/gitalk.js"></script>
-        <script type="text/javascript">
-          (function() {
-            new Gitalk({
-              clientID: 'a9e7753a034dee201f15',
-              clientSecret: '171ad25db57c0a0c858c752236f8475b7e445e85',
-              repo: 'Chai0710.github.io',
-              owner: 'Chai0710',
-              admin: ['Chai0710'],
-              id: '2019/12/17/rails_searchtip/',
-              ...{"language":"zh-tw","perPage":10,"distractionFreeMode":false,"enableHotKey":true,"pagerDirection":"first"}
-            }).render('gitalk')
-          })()
-        </script>
-    
 
 
 
